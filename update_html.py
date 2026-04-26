@@ -1,31 +1,36 @@
 import pandas as pd
 from datetime import datetime
 
-# Read the Excel file
 try:
+    # Excel dosyasını oku
     df = pd.read_excel('Rate sheet.xlsx')
     
-    # Convert dataframe to HTML table with Bootstrap classes
-    html_table = df.to_html(index=False, classes='table table-hover table-bordered', border=0)
+    # Verileri HTML tablosuna çevir
+    html_table = df.to_html(index=False, classes='table table-dark table-hover', border=0)
 
-    # The English HTML Template
+    # Senin orijinal şık tasarımın (İngilizce)
     html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toronto Cargo Rate Sheet</title>
+    <title>Turkish Cargo Toronto - Rate Lookup</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {{ background-color: #f8f9fa; padding-top: 50px; }}
-        .container {{ background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
-        h2 {{ color: #d40000; font-weight: bold; margin-bottom: 25px; }}
-        .last-update {{ font-size: 0.8rem; color: #6c757d; margin-top: 20px; }}
+        body {{ font-family: 'Inter', sans-serif; background: #0a0a0f; color: #f0f0f0; padding: 40px 20px; }}
+        .container {{ max-width: 1000px; margin: auto; background: #16161e; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }}
+        h2 {{ color: #ff3e3e; font-weight: 700; margin-bottom: 20px; border-left: 5px solid #ff3e3e; padding-left: 15px; }}
+        .header-img {{ width: 100%; border-radius: 10px; margin-bottom: 25px; object-fit: cover; height: 250px; }}
+        .table {{ color: #e0e0e0; border-color: #2d2d3d; }}
+        .table-dark {{ background-color: #16161e; }}
+        .last-update {{ font-size: 0.85rem; color: #888; margin-top: 20px; text-align: right; }}
     </style>
 </head>
 <body>
     <div class="container">
+        <img src="Turkish-Cargo-800x450.jpg" class="header-img" alt="Turkish Cargo">
         <h2>Toronto Rate Lookup</h2>
         <div class="table-responsive">
             {html_table}
@@ -35,10 +40,9 @@ try:
 </body>
 </html>
 """
-
     with open('index.html', 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print("Success: index.html has been updated!")
+    print("Successfully updated index.html with stylish theme!")
 
 except Exception as e:
     print(f"Error: {e}")
