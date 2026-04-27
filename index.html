@@ -202,6 +202,28 @@ body::after{
 .no-table-result{text-align:center;color:rgba(255,255,255,0.4);padding:32px;font-size:14px;}
 .col-header-main{color:#ffaaaa;}
 .result-count{font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:12px;}
+
+/* No Sale Routes */
+.nosale-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px 28px;backdrop-filter:blur(10px);}
+.nosale-search-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px;}
+.nosale-filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:20px;}
+.filter-btn{padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-size:12px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.2s;letter-spacing:0.03em;}
+.filter-btn:hover{background:rgba(255,255,255,0.1);color:#fff;}
+.filter-btn.active{background:#cc0000;border-color:#cc0000;color:#fff;}
+.nosale-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.08);}
+.nosale-table{width:100%;border-collapse:collapse;font-size:13px;}
+.nosale-table th{background:rgba(204,0,0,0.25);color:#fff;font-weight:700;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:12px 14px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.1);white-space:nowrap;}
+.nosale-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.8);vertical-align:middle;}
+.nosale-table td:first-child{font-weight:700;color:#fff;letter-spacing:0.05em;font-size:13px;}
+.nosale-table tr:hover td{background:rgba(255,255,255,0.04);}
+.nosale-table tr:last-child td{border-bottom:none;}
+.status-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.05em;}
+.status-closed{background:rgba(204,0,0,0.25);border:1px solid rgba(204,0,0,0.5);color:#ff8080;}
+.status-open{background:rgba(0,180,80,0.15);border:1px solid rgba(0,180,80,0.35);color:#5dca8a;}
+.aircraft-badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);}
+.nosale-count{font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:12px;}
+.nosale-empty{text-align:center;color:rgba(255,255,255,0.4);padding:32px;font-size:14px;}
+.remarks-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(255,180,0,0.1);border:1px solid rgba(255,180,0,0.25);color:rgba(255,200,80,0.85);}
 </style>
 </head>
 <body>
@@ -250,6 +272,7 @@ body::after{
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab(0)">&#9998; Rate Lookup</button>
       <button class="tab-btn" onclick="switchTab(1)">&#9776; Full Rate Sheet</button>
+      <button class="tab-btn" onclick="switchTab(2)">&#9888; No Sale Routes</button>
     </div>
 
     <div class="tab-panel active" id="tab0">
@@ -317,6 +340,45 @@ body::after{
         <div id="tableOutput"></div>
       </div>
     </div>
+
+  <!-- TAB 3: No Sale Routes -->
+  <div class="tab-panel" id="tab2">
+    <div class="nosale-card">
+      <div class="nosale-search-row">
+        <div class="field">
+          <label>Search Destination</label>
+          <input type="text" id="nosaleSearch" placeholder="e.g. IST" maxlength="6"
+            style="width:160px;text-transform:uppercase;height:44px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:0 14px;font-size:15px;font-family:Inter,sans-serif;color:#fff;outline:none;"
+            oninput="this.value=this.value.toUpperCase();renderNosale()">
+        </div>
+      </div>
+      <div class="nosale-filter-row">
+        <span style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;">Status:</span>
+        <button class="filter-btn active" id="fAll" onclick="setFilter('all')">All</button>
+        <button class="filter-btn" id="fClosed" onclick="setFilter('closed')">Closed</button>
+        <button class="filter-btn" id="fOpen" onclick="setFilter('open')">Open</button>
+        <span style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-left:8px;">Aircraft:</span>
+        <button class="filter-btn active" id="fAcAll" onclick="setAcFilter('all')">All</button>
+        <button class="filter-btn" id="fNarrow" onclick="setAcFilter('narrow')">Narrow Body</button>
+        <button class="filter-btn" id="fWide" onclick="setAcFilter('wide')">Wide Body</button>
+      </div>
+      <div class="nosale-count" id="nosaleCount"></div>
+      <div class="nosale-table-wrap">
+        <table class="nosale-table">
+          <thead>
+            <tr>
+              <th>Destination</th>
+              <th>Aircraft Type</th>
+              <th>Status</th>
+              <th>Details</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody id="nosaleBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
   </div>
 </div>
@@ -444,6 +506,7 @@ function showFullSheet(){
 function switchTab(idx){
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
   document.querySelectorAll('.tab-panel').forEach((p,i)=>p.classList.toggle('active',i===idx));
+  if(idx===2) renderNosale();
 }
 
 document.addEventListener('keydown', e=>{
@@ -459,6 +522,63 @@ document.addEventListener('keydown', e=>{
 });
 
 document.getElementById('destInput2').addEventListener('keydown', e=>{if(e.key==='Enter') showFullSheet();});
+
+const NOSALE = [{"dest": "ABJ", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "ABJ", "aircraft": "Wide Body", "sales": "OPEN", "details": "2000 Kg/ 10 m3 max limit per flight.", "remarks": ""}, {"dest": "ACC", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc: Hum"}, {"dest": "ACC", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "ADD", "aircraft": "Wide Body", "sales": "OPEN", "details": "3000kg/20m3 max limit per flight.", "remarks": ""}, {"dest": "ADD", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "ALG", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "ALP", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "AMM", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight.", "remarks": ""}, {"dest": "AMS", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight.", "remarks": ""}, {"dest": "AQJ", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight.", "remarks": ""}, {"dest": "ARN", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight", "remarks": ""}, {"dest": "ASB", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "ASB", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 Kg/ 5 m3 max limit per flight", "remarks": ""}, {"dest": "ASM", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "ASM", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "AUH", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 Kg/ 6 m3 max limit per flight", "remarks": ""}, {"dest": "BAH", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "BEG", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 Kg/ 8 m3 max limit per flight", "remarks": ""}, {"dest": "BEN", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "BEY", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "BGW", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight", "remarks": ""}, {"dest": "BHK", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Embargo", "remarks": ""}, {"dest": "BHX", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 4 m3 max limit per flight", "remarks": ""}, {"dest": "BIO", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000kg/6m3 max limit per flight.", "remarks": ""}, {"dest": "BJL", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "BJL", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "BKO", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "BKO", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "BRU", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 Kg/ 8 m3 max limit per flight", "remarks": ""}, {"dest": "BSR", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "BSR", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": ""}, {"dest": "CAI", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": ""}, {"dest": "CCS", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Embargo", "remarks": "Exc:Hum"}, {"dest": "CGN", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight", "remarks": ""}, {"dest": "CKY", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "CKY", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "CND", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": ""}, {"dest": "COO", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "COO", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "CPH", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 4 m3 max limit per flight", "remarks": ""}, {"dest": "CTA", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight", "remarks": ""}, {"dest": "CUN", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Embargo", "remarks": "Exc:Hum"}, {"dest": "CZL", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "CZL", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "DAC", "aircraft": "Wide Body", "sales": "OPEN", "details": "3000 Kg/ 18 m3 max limit per flight", "remarks": ""}, {"dest": "DAM", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight", "remarks": ""}, {"dest": "DAM", "aircraft": "Wide Body", "sales": "OPEN", "details": "3000 Kg/ 20 m3 max limit per flight", "remarks": ""}, {"dest": "DAR", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "DAR", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "DLA", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "DLA", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "DMM", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "DOH", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight.", "remarks": ""}, {"dest": "DSS", "aircraft": "Wide Body", "sales": "OPEN", "details": "3000 Kg/ 20 m3 max limit per flight", "remarks": ""}, {"dest": "DSS", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "DUB", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 5 m3 max limit per flight", "remarks": ""}, {"dest": "DUS", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight", "remarks": ""}, {"dest": "DYU", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": ""}, {"dest": "EBB", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "EBB", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "EBL", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500kg/3m3 max limit per flight.", "remarks": ""}, {"dest": "ECN", "aircraft": "Narrow Body", "sales": "OPEN", "details": "800 kg/4m3 max limit for one AWB for PER and AVI shipments.", "remarks": ""}, {"dest": "FCO", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg / 3 m3 max limit per flight only for AVI shipments", "remarks": ""}, {"dest": "FEG", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Embargo", "remarks": "Exc:Hum"}, {"dest": "FIH", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "FNA", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "FNA", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "FRU", "aircraft": "Narrow Body", "sales": "OPEN", "details": "250 Kg/1.5 m3 max limit for one AWB.", "remarks": "Only GEN"}, {"dest": "GOT", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 4 m3 max limit per flight", "remarks": ""}, {"dest": "GVA", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 kg / 8 m3 max limit per flight.", "remarks": ""}, {"dest": "GYD", "aircraft": "Narrow Body", "sales": "OPEN", "details": "2500 kg / 8 m3 max limit per flight", "remarks": ""}, {"dest": "HAJ", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 kg / 3 m3 max limit per flight", "remarks": ""}, {"dest": "HAM", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 kg / 4 m3 max limit per flight", "remarks": ""}, {"dest": "HAV", "aircraft": "Wide Body", "sales": "OPEN", "details": "4000 Kg/ 20 m3 max limit per flight", "remarks": ""}, {"dest": "HBE", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Embargo", "remarks": "Exc:Hum"}, {"dest": "HEL", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight", "remarks": ""}, {"dest": "HRG", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Embargo", "remarks": "Exc:Comat"}, {"dest": "HSA", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Embargo", "remarks": "Exc:Hum"}, {"dest": "HSA", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Embargo", "remarks": "Exc:Hum"}, {"dest": "IFN", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "IFN", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "IKA", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "IKA", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "JED", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": ""}, {"dest": "JIB", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 kg / 3 m3 max limit per flight", "remarks": ""}, {"dest": "JRO", "aircraft": "Narrow Body", "sales": "OPEN", "details": "300 kg / 2 m3 max limit per flight", "remarks": "Exc:Hum"}, {"dest": "JUB", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "KBL", "aircraft": "Wide Body", "sales": "OPEN", "details": "3000 Kg/ 18 m3 max limit per flight", "remarks": ""}, {"dest": "KGL", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "KGL", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "KHI", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "KIK", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Embargo", "remarks": "Exc:Hum"}, {"dest": "KRK", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 kg / 4 m3 max limit per flight", "remarks": ""}, {"dest": "KRW", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 Kg/10 m3 max limit per flight.", "remarks": ""}, {"dest": "KWI", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": ""}, {"dest": "LBV", "aircraft": "Wide Body", "sales": "OPEN", "details": "2000 Kg/ 10 m3 max limit per flight", "remarks": ""}, {"dest": "LBV", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "LED", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 kg / 8 m3 max limit per flight.", "remarks": ""}, {"dest": "LEJ", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 4 m3 max limit per flight", "remarks": ""}, {"dest": "LGW", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 4 m3 max limit per flight", "remarks": ""}, {"dest": "LHR", "aircraft": "Narrow Body", "sales": "OPEN", "details": "800 Kg/ 5 m3 max limit per flight.", "remarks": ""}, {"dest": "LIS", "aircraft": "Narrow Body", "sales": "OPEN", "details": "800 Kg/ 5 m3 max limit per flight", "remarks": ""}, {"dest": "LUN", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc: Hum"}, {"dest": "LYS", "aircraft": "Narrow Body", "sales": "OPEN", "details": "250 Kg/ 2 m3 max limit per flight only for AVI shipments", "remarks": ""}, {"dest": "MAN", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "MBA", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "MCT", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight.", "remarks": ""}, {"dest": "MED", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "MGQ", "aircraft": "Narrow Body", "sales": "OPEN", "details": "300 Kg/ 3 m3 max limit per flight.", "remarks": ""}, {"dest": "MHD", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "MHD", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "MJI", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc: Hum"}, {"dest": "MLA", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight", "remarks": ""}, {"dest": "MRA", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "MRS", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight", "remarks": ""}, {"dest": "MUC", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 kg / 8 m3 max limit per flight.", "remarks": ""}, {"dest": "NBO", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "NDJ", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc: Hum"}, {"dest": "NDJ", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc: Hum (Max 1 pcs per flight)"}, {"dest": "NIM", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc: Hum"}, {"dest": "NIM", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc: Hum (Max 1 pcs per flight)"}, {"dest": "NJF", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Embargo", "remarks": "Exc:Hum"}, {"dest": "NJF", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Embargo", "remarks": "Exc:Hum"}, {"dest": "NKC", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "NKC", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "NQZ", "aircraft": "Wide Body", "sales": "OPEN", "details": "5000 Kg/ 30 m3 max limit per flight", "remarks": ""}, {"dest": "NQZ", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "NSI", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "NSI", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "OPO", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 Kg/ 8 m3 max limit per flight", "remarks": ""}, {"dest": "ORN", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc: Hum"}, {"dest": "OSL", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight", "remarks": ""}, {"dest": "OTP", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 Kg/ 8 m3 max limit per awb.", "remarks": ""}, {"dest": "OUA", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "OUA", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Inc:Hum"}, {"dest": "PNR", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc: Hum"}, {"dest": "PNR", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc: Hum"}, {"dest": "PRG", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 Kg/ 8 m3 max limit per awb.", "remarks": ""}, {"dest": "PRG", "aircraft": "Wide Body", "sales": "OPEN", "details": "10000 Kg/ 60 m3 max limit per awb.", "remarks": ""}, {"dest": "PRN", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight", "remarks": ""}, {"dest": "PZU", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc: Hum"}, {"dest": "RAK", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight", "remarks": "Exc:DG shipments, Hum"}, {"dest": "RIX", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 Kg/ 7 m3 max limit per flight.", "remarks": "Exc:Hum"}, {"dest": "RMO", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 4 m3 max limit per flight.", "remarks": "Exc:Hum"}, {"dest": "RUH", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500kg/3m3 max limit per flight.", "remarks": ""}, {"dest": "SCO", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Embargo", "remarks": "Exc:Hum"}, {"dest": "SCO", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Embargo", "remarks": "Exc:Hum"}, {"dest": "SJJ", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 kg / 4 m3 max limit per flight", "remarks": ""}, {"dest": "SKD", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Embargo", "remarks": "Exc:Hum"}, {"dest": "SKP", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 kg / 8 m3 max limit per flight", "remarks": ""}, {"dest": "SOF", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 Kg/ 6 m3 max limit per flight", "remarks": ""}, {"dest": "SSH", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Embargo", "remarks": "Exc:Comat"}, {"dest": "STR", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 Kg/ 3 m3 max limit per flight", "remarks": ""}, {"dest": "SYZ", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "SYZ", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "TAS", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "TBS", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 kg / 6 m3 max limit per flight", "remarks": ""}, {"dest": "TBZ", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "TBZ", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "TGD", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 kg / 6 m3 max limit per flight", "remarks": "Only HUM and GEN"}, {"dest": "TIF", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "TIF", "aircraft": "Wide Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "TSR", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": "Exc:Hum"}, {"dest": "TLS", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 kg / 4 m3 max limit per flight", "remarks": ""}, {"dest": "TUN", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Capacity", "remarks": ""}, {"dest": "UGC", "aircraft": "Narrow Body", "sales": "CLOSED", "details": "Embargo", "remarks": ""}, {"dest": "VAR", "aircraft": "Narrow Body", "sales": "OPEN", "details": "500 kg / 4 m3 max limit per flight", "remarks": ""}, {"dest": "VKO", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 kg / 6 m3 max limit per flight", "remarks": ""}, {"dest": "VLC", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000kg/6m3 max limit per flight.", "remarks": ""}, {"dest": "WAW", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 Kg/ 8 m3 max limit per AWB", "remarks": ""}, {"dest": "YUL", "aircraft": "Wide Body", "sales": "OPEN", "details": "15 m3 max limit for one AWB.", "remarks": ""}, {"dest": "ZAG", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 Kg/ 6 m3 max limit per flight", "remarks": ""}, {"dest": "ZNZ", "aircraft": "Narrow Body", "sales": "OPEN", "details": "300 kg / 2 m3 max limit per flight", "remarks": "Exc:Hum"}, {"dest": "ZRH", "aircraft": "Narrow Body", "sales": "OPEN", "details": "1000 Kg/ 8 m3 max limit per flight", "remarks": ""}];
+
+let activeFilter = 'all';
+let activeAcFilter = 'all';
+
+function setFilter(f){
+  activeFilter = f;
+  document.querySelectorAll('#fAll,#fClosed,#fOpen').forEach(b=>b.classList.remove('active'));
+  document.getElementById(f==='all'?'fAll':f==='closed'?'fClosed':'fOpen').classList.add('active');
+  renderNosale();
+}
+
+function setAcFilter(f){
+  activeAcFilter = f;
+  document.querySelectorAll('#fAcAll,#fNarrow,#fWide').forEach(b=>b.classList.remove('active'));
+  document.getElementById(f==='all'?'fAcAll':f==='narrow'?'fNarrow':'fWide').classList.add('active');
+  renderNosale();
+}
+
+function renderNosale(){
+  const search = (document.getElementById('nosaleSearch').value||'').trim().toUpperCase();
+  const body = document.getElementById('nosaleBody');
+  const countEl = document.getElementById('nosaleCount');
+
+  let filtered = NOSALE.filter(r=>{
+    if(search && !r.dest.includes(search)) return false;
+    if(activeFilter==='closed' && r.sales!=='CLOSED') return false;
+    if(activeFilter==='open' && r.sales!=='OPEN') return false;
+    if(activeAcFilter==='narrow' && r.aircraft!=='Narrow Body') return false;
+    if(activeAcFilter==='wide' && r.aircraft!=='Wide Body') return false;
+    return true;
+  });
+
+  countEl.textContent = filtered.length + ' route' + (filtered.length!==1?'s':'') + ' shown';
+
+  if(filtered.length===0){
+    body.innerHTML='<tr><td colspan="5" class="nosale-empty">No routes match your filters.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = filtered.map(r=>{
+    const statusCls = r.sales==='CLOSED' ? 'status-closed' : 'status-open';
+    const remarks = r.remarks ? `<span class="remarks-tag">${r.remarks}</span>` : '<span style="color:rgba(255,255,255,0.2)">—</span>';
+    return `<tr>
+      <td>${r.dest}</td>
+      <td><span class="aircraft-badge">${r.aircraft}</span></td>
+      <td><span class="status-badge ${statusCls}">${r.sales}</span></td>
+      <td style="color:rgba(255,255,255,0.65)">${r.details||'—'}</td>
+      <td>${remarks}</td>
+    </tr>`;
+  }).join('');
+}
+
+// init on load
+document.addEventListener('DOMContentLoaded', ()=>{ renderNosale(); });
+
 </script>
 </body>
 </html>
