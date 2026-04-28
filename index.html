@@ -4,6 +4,71 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Turkish Cargo Toronto — Login</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+function toggleAdmin(){
+  document.getElementById('adminPanel').classList.toggle('open');
+}
+
+function applyUSDCAD(){
+  const val = parseFloat(document.getElementById('usdcadAdmin').value);
+  if(isNaN(val) || val < 1){ document.getElementById('usdcadStatus').textContent='Invalid rate.'; document.getElementById('usdcadStatus').className='admin-status err'; return; }
+  // Sync with MCR tab input if exists
+  const mcrInput = document.getElementById('usdcadRate');
+  if(mcrInput) mcrInput.value = val.toFixed(4);
+  renderMCR();
+  document.getElementById('usdcadStatus').textContent = '✓ Rate updated to ' + val.toFixed(4);
+  document.getElementById('usdcadStatus').className = 'admin-status ok';
+}
+
+function importMCR(input){
+  const file = input.files[0];
+  const status = document.getElementById('mcrStatus');
+  if(!file){ return; }
+  status.textContent = 'Reading file...';
+  status.className = 'admin-status';
+
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1});
+
+      const parsed = [];
+      for(const row of rows){
+        if(!row[0] || !row[3]) continue;
+        const dest = String(row[0]).trim().toUpperCase();
+        const type = String(row[1]||'').trim();
+        const lf = String(row[2]||'').trim();
+        const rate = parseFloat(row[3]);
+        if(isNaN(rate)) continue;
+        parsed.push({dest, type, lf, rate});
+      }
+
+      if(!parsed.length){ status.textContent='No valid rows found.'; status.className='admin-status err'; return; }
+
+      // Update global MCR data
+      MCR.length = 0;
+      parsed.forEach(r => MCR.push(r));
+
+      // Update MCR_DESTS
+      MCR_DESTS.clear();
+      parsed.forEach(r => MCR_DESTS.add(r.dest));
+
+      renderMCR();
+      status.textContent = '✓ ' + parsed.length + ' entries loaded (' + MCR_DESTS.size + ' destinations)';
+      status.className = 'admin-status ok';
+      input.value = '';
+    } catch(err){
+      status.textContent = 'Error: ' + err.message;
+      status.className = 'admin-status err';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -299,6 +364,47 @@ body::after{
 .mcr-tooltip-left{display:flex;gap:6px;align-items:center;}
 .mcr-tooltip-right{font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;color:#fff;text-align:right;}
 .mcr-tooltip-cad{display:block;font-size:10px;font-weight:500;color:rgba(255,180,0,0.75);}
+
+/* Admin Panel */
+.admin-float{position:fixed;bottom:24px;right:24px;z-index:500;}
+.admin-btn{
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(30,20,10,0.9);
+  border:1px solid rgba(255,180,0,0.3);
+  color:rgba(255,180,0,0.7);font-size:18px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(0,0,0,0.5);
+  transition:all 0.2s;
+}
+.admin-btn:hover{border-color:rgba(255,180,0,0.8);color:#ffd060;box-shadow:0 4px 24px rgba(255,180,0,0.3);}
+.admin-panel{
+  position:fixed;bottom:80px;right:24px;z-index:500;
+  width:340px;
+  background:rgba(14,10,4,0.97);
+  border:1px solid rgba(255,180,0,0.3);
+  border-radius:16px;padding:20px;
+  box-shadow:0 16px 48px rgba(0,0,0,0.8);
+  display:none;
+}
+.admin-panel.open{display:block;}
+.admin-panel-title{font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,180,0,0.8);margin-bottom:14px;}
+.admin-section{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.admin-section:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.admin-section-label{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
+.admin-drop{
+  border:2px dashed rgba(255,180,0,0.3);border-radius:10px;
+  padding:16px;text-align:center;cursor:pointer;
+  transition:all 0.2s;color:rgba(255,255,255,0.4);font-size:13px;
+}
+.admin-drop:hover{border-color:rgba(255,180,0,0.7);color:#ffd060;background:rgba(255,180,0,0.05);}
+.admin-drop input[type=file]{display:none;}
+.admin-status{font-size:12px;margin-top:8px;min-height:18px;color:rgba(255,255,255,0.5);text-align:center;}
+.admin-status.ok{color:#5dca8a;}
+.admin-status.err{color:#ff8080;}
+.usdcad-row{display:flex;gap:8px;align-items:center;}
+.usdcad-row input{flex:1;height:36px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,180,0,0.3);border-radius:8px;padding:0 10px;font-size:14px;font-family:'Inter',sans-serif;color:#fff;outline:none;}
+.usdcad-row button{height:36px;padding:0 14px;background:rgba(255,180,0,0.15);border:1px solid rgba(255,180,0,0.4);border-radius:8px;color:#ffd060;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;}
+.usdcad-row button:hover{background:rgba(255,180,0,0.25);}
 </style>
 </head>
 <body>
@@ -703,8 +809,8 @@ function renderNosale(){
 document.addEventListener('DOMContentLoaded', ()=>{ renderNosale(); renderMCR(); });
 
 
-const MCR = [{"dest": "ABJ", "type": "All", "lf": "Low LF", "rate": 8.8}, {"dest": "ABJ", "type": "All", "lf": "High LF", "rate": 8.8}, {"dest": "ABV", "type": "All", "lf": "High LF", "rate": 4.73}, {"dest": "ACC", "type": "All", "lf": "Low LF", "rate": 8.77}, {"dest": "ACC", "type": "All", "lf": "High LF", "rate": 10.77}, {"dest": "ADD", "type": "All", "lf": "Low LF", "rate": 8.73}, {"dest": "ADD", "type": "All", "lf": "High LF", "rate": 10.73}, {"dest": "AGP", "type": "All", "lf": "High LF", "rate": 4.71}, {"dest": "ALA", "type": "All", "lf": "High LF", "rate": 3.72}, {"dest": "ALG", "type": "Cargo", "lf": "High LF", "rate": 6.58}, {"dest": "AMD", "type": "All", "lf": "Low LF", "rate": 2.27}, {"dest": "AMD", "type": "All", "lf": "High LF", "rate": 3.27}, {"dest": "AMM", "type": "All", "lf": "Low LF", "rate": 2.65}, {"dest": "AMM", "type": "All", "lf": "High LF", "rate": 4.15}, {"dest": "AMS", "type": "All", "lf": "Low LF", "rate": 3.15}, {"dest": "AMS", "type": "All", "lf": "High LF", "rate": 5.15}, {"dest": "ARN", "type": "All", "lf": "High LF", "rate": 4.08}, {"dest": "ASB", "type": "All", "lf": "High LF", "rate": 6.05}, {"dest": "ASM", "type": "All", "lf": "Low LF", "rate": 6.71}, {"dest": "ASM", "type": "All", "lf": "High LF", "rate": 8.71}, {"dest": "ATH", "type": "All", "lf": "High LF", "rate": 6.17}, {"dest": "ATL", "type": "Cargo", "lf": "Low LF", "rate": 5.06}, {"dest": "ATL", "type": "Pax", "lf": "Low LF", "rate": 6.06}, {"dest": "ATL", "type": "Cargo", "lf": "High LF", "rate": 9.06}, {"dest": "ATL", "type": "Pax", "lf": "High LF", "rate": 9.06}, {"dest": "BAH", "type": "All", "lf": "Low LF", "rate": 1.7}, {"dest": "BAH", "type": "All", "lf": "High LF", "rate": 2.7}, {"dest": "BCN", "type": "All", "lf": "Low LF", "rate": 5.14}, {"dest": "BCN", "type": "All", "lf": "High LF", "rate": 6.14}, {"dest": "BEG", "type": "Cargo", "lf": "Low LF", "rate": 4.56}, {"dest": "BEG", "type": "Cargo", "lf": "High LF", "rate": 6.06}, {"dest": "BEG", "type": "Pax", "lf": "High LF", "rate": 5.06}, {"dest": "BER", "type": "All", "lf": "High LF", "rate": 4.68}, {"dest": "BEY", "type": "All", "lf": "Low LF", "rate": 1.99}, {"dest": "BEY", "type": "All", "lf": "High LF", "rate": 1.99}, {"dest": "BGW", "type": "All", "lf": "Low LF", "rate": 3.63}, {"dest": "BGW", "type": "All", "lf": "High LF", "rate": 5.63}, {"dest": "BJL", "type": "All", "lf": "Low LF", "rate": 8.72}, {"dest": "BJL", "type": "All", "lf": "High LF", "rate": 10.72}, {"dest": "BKK", "type": "All", "lf": "Low LF", "rate": 1.24}, {"dest": "BKK", "type": "All", "lf": "High LF", "rate": 2.14}, {"dest": "BKO", "type": "All", "lf": "Low LF", "rate": 4.88}, {"dest": "BKO", "type": "All", "lf": "High LF", "rate": 7.88}, {"dest": "BLR", "type": "All", "lf": "High LF", "rate": 3.23}, {"dest": "BOG", "type": "All", "lf": "Low LF", "rate": 14.01}, {"dest": "BOG", "type": "All", "lf": "High LF", "rate": 16.01}, {"dest": "BOM", "type": "All", "lf": "Low LF", "rate": 1.35}, {"dest": "BOM", "type": "All", "lf": "High LF", "rate": 3.25}, {"dest": "BOS", "type": "All", "lf": "Low LF", "rate": 4.97}, {"dest": "BOS", "type": "All", "lf": "High LF", "rate": 7.47}, {"dest": "BRU", "type": "All", "lf": "High LF", "rate": 4.82}, {"dest": "BUD", "type": "All", "lf": "Low LF", "rate": 4.64}, {"dest": "BUD", "type": "All", "lf": "High LF", "rate": 6.64}, {"dest": "CAI", "type": "All", "lf": "Low LF", "rate": 2.1}, {"dest": "CAI", "type": "All", "lf": "High LF", "rate": 5.1}, {"dest": "CDG", "type": "All", "lf": "High LF", "rate": 5.72}, {"dest": "CGK", "type": "All", "lf": "Low LF", "rate": 4.35}, {"dest": "CGK", "type": "All", "lf": "High LF", "rate": 5.85}, {"dest": "CKY", "type": "All", "lf": "Low LF", "rate": 6.82}, {"dest": "CKY", "type": "All", "lf": "High LF", "rate": 8.82}, {"dest": "CMB", "type": "Pax", "lf": "Low LF", "rate": 2.37}, {"dest": "CMB", "type": "Cargo", "lf": "High LF", "rate": 2.87}, {"dest": "CMB", "type": "Pax", "lf": "High LF", "rate": 3.37}, {"dest": "CMN", "type": "All", "lf": "Low LF", "rate": 4.75}, {"dest": "CMN", "type": "All", "lf": "High LF", "rate": 6.75}, {"dest": "CPH", "type": "Pax", "lf": "Low LF", "rate": 3.78}, {"dest": "CPH", "type": "Cargo", "lf": "High LF", "rate": 4.78}, {"dest": "CPH", "type": "Pax", "lf": "High LF", "rate": 3.78}, {"dest": "CPT", "type": "All", "lf": "Low LF", "rate": 2.81}, {"dest": "CPT", "type": "All", "lf": "High LF", "rate": 5.81}, {"dest": "DAC", "type": "Pax", "lf": "Low LF", "rate": 2.31}, {"dest": "DAC", "type": "Cargo", "lf": "High LF", "rate": 5.81}, {"dest": "DAC", "type": "Pax", "lf": "High LF", "rate": 5.81}, {"dest": "DAR", "type": "All", "lf": "Low LF", "rate": 4.72}, {"dest": "DAR", "type": "All", "lf": "High LF", "rate": 5.72}, {"dest": "DEL", "type": "All", "lf": "High LF", "rate": 3.21}, {"dest": "DEN", "type": "All", "lf": "High LF", "rate": 5.52}, {"dest": "DFW", "type": "All", "lf": "Low LF", "rate": 6.01}, {"dest": "DFW", "type": "All", "lf": "High LF", "rate": 9.01}, {"dest": "DLA", "type": "All", "lf": "Low LF", "rate": 4.82}, {"dest": "DLA", "type": "All", "lf": "High LF", "rate": 5.82}, {"dest": "DMM", "type": "All", "lf": "Low LF", "rate": 1.77}, {"dest": "DMM", "type": "All", "lf": "High LF", "rate": 2.77}, {"dest": "DOH", "type": "All", "lf": "Low LF", "rate": 2.17}, {"dest": "DOH", "type": "All", "lf": "High LF", "rate": 3.17}, {"dest": "DSS", "type": "Cargo", "lf": "Low LF", "rate": 5.74}, {"dest": "DSS", "type": "Pax", "lf": "Low LF", "rate": 5.74}, {"dest": "DSS", "type": "Cargo", "lf": "High LF", "rate": 7.74}, {"dest": "DSS", "type": "Pax", "lf": "High LF", "rate": 7.74}, {"dest": "DTW", "type": "All", "lf": "Low LF", "rate": 4.82}, {"dest": "DTW", "type": "All", "lf": "High LF", "rate": 7.32}, {"dest": "DUB", "type": "Cargo", "lf": "High LF", "rate": 5.94}, {"dest": "DUB", "type": "Pax", "lf": "High LF", "rate": 5.94}, {"dest": "DUR", "type": "All", "lf": "Low LF", "rate": 5.85}, {"dest": "DUR", "type": "All", "lf": "High LF", "rate": 5.85}, {"dest": "DUS", "type": "All", "lf": "High LF", "rate": 4.86}, {"dest": "DWC", "type": "All", "lf": "Low LF", "rate": 3.71}, {"dest": "DWC", "type": "All", "lf": "High LF", "rate": 5.71}, {"dest": "DXB", "type": "All", "lf": "Low LF", "rate": 2.21}, {"dest": "DXB", "type": "All", "lf": "High LF", "rate": 3.21}, {"dest": "EBB", "type": "All", "lf": "Low LF", "rate": 4.79}, {"dest": "EBB", "type": "All", "lf": "High LF", "rate": 5.79}, {"dest": "EBL", "type": "All", "lf": "Low LF", "rate": 3.7}, {"dest": "EBL", "type": "All", "lf": "High LF", "rate": 5.7}, {"dest": "EWR", "type": "All", "lf": "Low LF", "rate": 4.99}, {"dest": "EWR", "type": "All", "lf": "High LF", "rate": 7.49}, {"dest": "EZE", "type": "All", "lf": "Low LF", "rate": 8.02}, {"dest": "EZE", "type": "All", "lf": "High LF", "rate": 11.02}, {"dest": "FCO", "type": "All", "lf": "High LF", "rate": 5.6}, {"dest": "FIH", "type": "Cargo", "lf": "Low LF", "rate": 6.29}, {"dest": "FIH", "type": "Pax", "lf": "Low LF", "rate": 6.29}, {"dest": "FIH", "type": "Cargo", "lf": "High LF", "rate": 7.79}, {"dest": "FIH", "type": "Pax", "lf": "High LF", "rate": 7.79}, {"dest": "FRA", "type": "All", "lf": "Low LF", "rate": 2.72}, {"dest": "FRA", "type": "All", "lf": "High LF", "rate": 5.72}, {"dest": "GRU", "type": "All", "lf": "Low LF", "rate": 7.97}, {"dest": "GRU", "type": "All", "lf": "High LF", "rate": 10.97}, {"dest": "GVA", "type": "All", "lf": "High LF", "rate": 4.85}, {"dest": "GYD", "type": "All", "lf": "High LF", "rate": 5.8}, {"dest": "HAM", "type": "All", "lf": "Low LF", "rate": 6.75}, {"dest": "HAM", "type": "All", "lf": "High LF", "rate": 9.75}, {"dest": "HAN", "type": "All", "lf": "High LF", "rate": 1.95}, {"dest": "HAV", "type": "All", "lf": "High LF", "rate": 6.33}, {"dest": "HEL", "type": "All", "lf": "Low LF", "rate": 4.66}, {"dest": "HEL", "type": "All", "lf": "High LF", "rate": 5.66}, {"dest": "HND", "type": "All", "lf": "High LF", "rate": 2.71}, {"dest": "IAD", "type": "All", "lf": "Low LF", "rate": 4.96}, {"dest": "IAD", "type": "All", "lf": "High LF", "rate": 6.96}, {"dest": "IAH", "type": "All", "lf": "Low LF", "rate": 5.01}, {"dest": "IAH", "type": "All", "lf": "High LF", "rate": 9.01}, {"dest": "ICN", "type": "Pax", "lf": "Low LF", "rate": 1.45}, {"dest": "ICN", "type": "Pax", "lf": "High LF", "rate": 2.25}, {"dest": "JED", "type": "Cargo", "lf": "Low LF", "rate": 2.3}, {"dest": "JED", "type": "Pax", "lf": "Low LF", "rate": 3.3}, {"dest": "JED", "type": "Cargo", "lf": "High LF", "rate": 4.8}, {"dest": "JED", "type": "Pax", "lf": "High LF", "rate": 4.8}, {"dest": "JFK", "type": "All", "lf": "Low LF", "rate": 6.03}, {"dest": "JFK", "type": "All", "lf": "High LF", "rate": 8.03}, {"dest": "JIB", "type": "All", "lf": "Low LF", "rate": 9.95}, {"dest": "JIB", "type": "All", "lf": "High LF", "rate": 9.95}, {"dest": "JNB", "type": "Cargo", "lf": "Low LF", "rate": 3.48}, {"dest": "JNB", "type": "Pax", "lf": "Low LF", "rate": 3.48}, {"dest": "JNB", "type": "Cargo", "lf": "High LF", "rate": 5.78}, {"dest": "JNB", "type": "Pax", "lf": "High LF", "rate": 5.78}, {"dest": "KBL", "type": "All", "lf": "High LF", "rate": 4.45}, {"dest": "KGL", "type": "All", "lf": "Low LF", "rate": 4.78}, {"dest": "KGL", "type": "All", "lf": "High LF", "rate": 5.78}, {"dest": "KHI", "type": "Pax", "lf": "Low LF", "rate": 2.25}, {"dest": "KHI", "type": "Cargo", "lf": "High LF", "rate": 3.05}, {"dest": "KHI", "type": "Pax", "lf": "High LF", "rate": 3.05}, {"dest": "KIX", "type": "All", "lf": "High LF", "rate": 3.13}, {"dest": "KTI", "type": "All", "lf": "High LF", "rate": 5.94}, {"dest": "KUL", "type": "Pax", "lf": "Low LF", "rate": 1.8}, {"dest": "KUL", "type": "Pax", "lf": "High LF", "rate": 2.6}, {"dest": "KWI", "type": "All", "lf": "Low LF", "rate": 1.58}, {"dest": "KWI", "type": "All", "lf": "High LF", "rate": 2.58}, {"dest": "LAD", "type": "All", "lf": "Low LF", "rate": 2.75}, {"dest": "LAD", "type": "All", "lf": "High LF", "rate": 5.25}, {"dest": "LAX", "type": "All", "lf": "Low LF", "rate": 6.07}, {"dest": "LAX", "type": "All", "lf": "High LF", "rate": 9.07}, {"dest": "LBV", "type": "All", "lf": "Low LF", "rate": 2.9}, {"dest": "LBV", "type": "All", "lf": "High LF", "rate": 5.7}, {"dest": "LGG", "type": "All", "lf": "High LF", "rate": 5.99}, {"dest": "LHE", "type": "All", "lf": "Low LF", "rate": 1.27}, {"dest": "LHE", "type": "All", "lf": "High LF", "rate": 5.67}, {"dest": "LHR", "type": "All", "lf": "Low LF", "rate": 4.23}, {"dest": "LHR", "type": "All", "lf": "High LF", "rate": 5.73}, {"dest": "LIS", "type": "All", "lf": "Low LF", "rate": 3.75}, {"dest": "LIS", "type": "All", "lf": "High LF", "rate": 5.75}, {"dest": "LNZ", "type": "All", "lf": "Low LF", "rate": 4.74}, {"dest": "LNZ", "type": "All", "lf": "High LF", "rate": 5.74}, {"dest": "LOS", "type": "All", "lf": "Low LF", "rate": 6.68}, {"dest": "LOS", "type": "All", "lf": "High LF", "rate": 8.68}, {"dest": "MAA", "type": "All", "lf": "High LF", "rate": 3.24}, {"dest": "MAD", "type": "All", "lf": "Low LF", "rate": 3.65}, {"dest": "MAD", "type": "All", "lf": "High LF", "rate": 5.65}, {"dest": "MED", "type": "All", "lf": "Low LF", "rate": 2.79}, {"dest": "MED", "type": "All", "lf": "High LF", "rate": 3.79}, {"dest": "MEL", "type": "All", "lf": "Low LF", "rate": 9.15}, {"dest": "MEL", "type": "All", "lf": "High LF", "rate": 11.15}, {"dest": "MEX", "type": "All", "lf": "Low LF", "rate": 7.95}, {"dest": "MEX", "type": "All", "lf": "High LF", "rate": 12.95}, {"dest": "MGQ", "type": "All", "lf": "Low LF", "rate": 8.81}, {"dest": "MGQ", "type": "All", "lf": "High LF", "rate": 8.81}, {"dest": "MIA", "type": "Cargo", "lf": "Low LF", "rate": 4.96}, {"dest": "MIA", "type": "Pax", "lf": "Low LF", "rate": 6.96}, {"dest": "MIA", "type": "Cargo", "lf": "High LF", "rate": 8.96}, {"dest": "MIA", "type": "Pax", "lf": "High LF", "rate": 10.96}, {"dest": "MLA", "type": "All", "lf": "Low LF", "rate": 4.08}, {"dest": "MLA", "type": "All", "lf": "High LF", "rate": 5.08}, {"dest": "MLE", "type": "All", "lf": "Low LF", "rate": 2.33}, {"dest": "MLE", "type": "All", "lf": "High LF", "rate": 3.23}, {"dest": "MNL", "type": "All", "lf": "Low LF", "rate": 2.85}, {"dest": "MNL", "type": "All", "lf": "High LF", "rate": 4.35}, {"dest": "MPM", "type": "All", "lf": "Low LF", "rate": 5.81}, {"dest": "MPM", "type": "All", "lf": "High LF", "rate": 5.81}, {"dest": "MRU", "type": "All", "lf": "Low LF", "rate": 4.12}, {"dest": "MRU", "type": "All", "lf": "High LF", "rate": 5.82}, {"dest": "MUC", "type": "All", "lf": "Low LF", "rate": 3.72}, {"dest": "MUC", "type": "All", "lf": "High LF", "rate": 5.22}, {"dest": "MXP", "type": "All", "lf": "High LF", "rate": 5.65}, {"dest": "NBO", "type": "Cargo", "lf": "Low LF", "rate": 7.77}, {"dest": "NBO", "type": "Pax", "lf": "Low LF", "rate": 2.52}, {"dest": "NBO", "type": "Cargo", "lf": "High LF", "rate": 7.77}, {"dest": "NBO", "type": "Pax", "lf": "High LF", "rate": 3.77}, {"dest": "NKC", "type": "All", "lf": "Low LF", "rate": 8.71}, {"dest": "NKC", "type": "All", "lf": "High LF", "rate": 10.71}, {"dest": "NLU", "type": "All", "lf": "Low LF", "rate": 6.95}, {"dest": "NLU", "type": "All", "lf": "High LF", "rate": 7.95}, {"dest": "NQZ", "type": "All", "lf": "High LF", "rate": 4.21}, {"dest": "NRT", "type": "All", "lf": "High LF", "rate": 3.06}, {"dest": "NSI", "type": "All", "lf": "Low LF", "rate": 4.86}, {"dest": "NSI", "type": "All", "lf": "High LF", "rate": 8.86}, {"dest": "ORD", "type": "All", "lf": "Low LF", "rate": 5.99}, {"dest": "ORD", "type": "All", "lf": "High LF", "rate": 7.99}, {"dest": "ORN", "type": "All", "lf": "Low LF", "rate": 6.63}, {"dest": "ORN", "type": "All", "lf": "High LF", "rate": 8.63}, {"dest": "OSL", "type": "All", "lf": "Low LF", "rate": 5.22}, {"dest": "OSL", "type": "All", "lf": "High LF", "rate": 6.22}, {"dest": "OTP", "type": "All", "lf": "Low LF", "rate": 4.0}, {"dest": "OTP", "type": "All", "lf": "High LF", "rate": 6.0}, {"dest": "OUA", "type": "All", "lf": "Low LF", "rate": 6.71}, {"dest": "OUA", "type": "All", "lf": "High LF", "rate": 8.71}, {"dest": "PRG", "type": "All", "lf": "Low LF", "rate": 4.14}, {"dest": "PRG", "type": "All", "lf": "High LF", "rate": 7.64}, {"dest": "PTY", "type": "All", "lf": "Low LF", "rate": 9.0}, {"dest": "PTY", "type": "All", "lf": "High LF", "rate": 11.0}, {"dest": "RUH", "type": "All", "lf": "Low LF", "rate": 4.02}, {"dest": "RUH", "type": "All", "lf": "High LF", "rate": 7.02}, {"dest": "SCL", "type": "All", "lf": "Low LF", "rate": 8.13}, {"dest": "SCL", "type": "All", "lf": "High LF", "rate": 11.13}, {"dest": "SEA", "type": "All", "lf": "Low LF", "rate": 5.0}, {"dest": "SEA", "type": "All", "lf": "High LF", "rate": 7.0}, {"dest": "SEZ", "type": "All", "lf": "Low LF", "rate": 3.87}, {"dest": "SEZ", "type": "All", "lf": "High LF", "rate": 5.87}, {"dest": "SFO", "type": "All", "lf": "Low LF", "rate": 6.02}, {"dest": "SFO", "type": "All", "lf": "High LF", "rate": 9.02}, {"dest": "SGN", "type": "All", "lf": "Low LF", "rate": 2.33}, {"dest": "SGN", "type": "All", "lf": "High LF", "rate": 2.83}, {"dest": "SIN", "type": "All", "lf": "Low LF", "rate": 2.1}, {"dest": "SIN", "type": "All", "lf": "High LF", "rate": 2.7}, {"dest": "STN", "type": "All", "lf": "High LF", "rate": 3.6}, {"dest": "STR", "type": "All", "lf": "Low LF", "rate": 3.84}, {"dest": "STR", "type": "All", "lf": "High LF", "rate": 4.84}, {"dest": "SYD", "type": "All", "lf": "Low LF", "rate": 5.09}, {"dest": "SYD", "type": "All", "lf": "High LF", "rate": 7.09}, {"dest": "TAS", "type": "Cargo", "lf": "High LF", "rate": 4.64}, {"dest": "TAS", "type": "Pax", "lf": "High LF", "rate": 5.84}, {"dest": "TNR", "type": "All", "lf": "Low LF", "rate": 3.45}, {"dest": "TNR", "type": "All", "lf": "High LF", "rate": 4.45}, {"dest": "TUN", "type": "Cargo", "lf": "Low LF", "rate": 5.72}, {"dest": "TUN", "type": "Cargo", "lf": "High LF", "rate": 8.72}, {"dest": "UBN", "type": "All", "lf": "High LF", "rate": 6.54}, {"dest": "UIO", "type": "All", "lf": "Low LF", "rate": 11.15}, {"dest": "UIO", "type": "All", "lf": "High LF", "rate": 13.15}, {"dest": "VIE", "type": "All", "lf": "Low LF", "rate": 3.66}, {"dest": "VIE", "type": "All", "lf": "High LF", "rate": 5.66}, {"dest": "VKO", "type": "Cargo", "lf": "High LF", "rate": 6.64}, {"dest": "VKO", "type": "Pax", "lf": "High LF", "rate": 5.64}, {"dest": "VLC", "type": "All", "lf": "High LF", "rate": 4.71}, {"dest": "VNO", "type": "All", "lf": "High LF", "rate": 5.14}, {"dest": "WAW", "type": "All", "lf": "Low LF", "rate": 4.99}, {"dest": "WAW", "type": "All", "lf": "High LF", "rate": 8.99}, {"dest": "YUL", "type": "All", "lf": "Low LF", "rate": 6.9}, {"dest": "YUL", "type": "All", "lf": "High LF", "rate": 9.9}, {"dest": "YVR", "type": "All", "lf": "High LF", "rate": 7.9}, {"dest": "ZNZ", "type": "All", "lf": "Low LF", "rate": 8.7}, {"dest": "ZNZ", "type": "All", "lf": "High LF", "rate": 8.7}, {"dest": "ZRH", "type": "All", "lf": "Low LF", "rate": 3.99}, {"dest": "ZRH", "type": "All", "lf": "High LF", "rate": 5.99}];
-const MCR_DESTS = new Set(["JED", "DEN", "ATH", "SIN", "DFW", "PRG", "FIH", "UBN", "RUH", "LAX", "TNR", "NQZ", "SCL", "AGP", "JFK", "ORN", "BLR", "BKK", "KUL", "UIO", "LHR", "BUD", "SEZ", "AMS", "KIX", "VNO", "SGN", "DAR", "JNB", "DLA", "EBB", "MXP", "YUL", "DMM", "ASB", "NLU", "DAC", "DUR", "IAH", "ZNZ", "FRA", "MNL", "TAS", "MGQ", "CDG", "CAI", "MPM", "NKC", "DEL", "STN", "BJL", "ALA", "ABJ", "ATL", "SFO", "EWR", "WAW", "CPT", "HAV", "OTP", "CMB", "FCO", "CKY", "LHE", "VLC", "CMN", "BEG", "JIB", "ALG", "CGK", "BAH", "NRT", "AMD", "SEA", "KTI", "MAA", "ABV", "GRU", "VKO", "ACC", "CPH", "KBL", "OUA", "PTY", "STR", "MUC", "HEL", "OSL", "MRU", "KWI", "BOM", "HAM", "SYD", "BOG", "BGW", "ARN", "DXB", "AMM", "NSI", "ORD", "LOS", "LBV", "KHI", "ICN", "BRU", "GYD", "BKO", "MEX", "IAD", "BOS", "LIS", "GVA", "DUS", "MED", "KGL", "LNZ", "MLA", "MEL", "MAD", "BCN", "DTW", "DWC", "VIE", "HND", "ASM", "DOH", "BER", "LGG", "ADD", "EZE", "LAD", "ZRH", "DSS", "DUB", "HAN", "TUN", "MLE", "NBO", "EBL", "YVR", "BEY", "MIA"]);
+let MCR = [{"dest": "ABJ", "type": "All", "lf": "Low LF", "rate": 8.8}, {"dest": "ABJ", "type": "All", "lf": "High LF", "rate": 8.8}, {"dest": "ABV", "type": "All", "lf": "High LF", "rate": 4.73}, {"dest": "ACC", "type": "All", "lf": "Low LF", "rate": 8.77}, {"dest": "ACC", "type": "All", "lf": "High LF", "rate": 10.77}, {"dest": "ADD", "type": "All", "lf": "Low LF", "rate": 8.73}, {"dest": "ADD", "type": "All", "lf": "High LF", "rate": 10.73}, {"dest": "AGP", "type": "All", "lf": "High LF", "rate": 4.71}, {"dest": "ALA", "type": "All", "lf": "High LF", "rate": 3.7199999999999998}, {"dest": "ALG", "type": "Cargo", "lf": "High LF", "rate": 6.58}, {"dest": "AMD", "type": "All", "lf": "Low LF", "rate": 2.27}, {"dest": "AMD", "type": "All", "lf": "High LF", "rate": 3.27}, {"dest": "AMM", "type": "All", "lf": "Low LF", "rate": 3.35}, {"dest": "AMM", "type": "All", "lf": "High LF", "rate": 5.65}, {"dest": "AMS", "type": "All", "lf": "Low LF", "rate": 3.65}, {"dest": "ARN", "type": "All", "lf": "High LF", "rate": 5.18}, {"dest": "ASB", "type": "All", "lf": "High LF", "rate": 6.05}, {"dest": "ASM", "type": "All", "lf": "Low LF", "rate": 6.71}, {"dest": "ASM", "type": "All", "lf": "High LF", "rate": 8.71}, {"dest": "ATH", "type": "All", "lf": "High LF", "rate": 6.17}, {"dest": "ATL", "type": "Pax", "lf": "Low LF", "rate": 8.06}, {"dest": "ATL", "type": "Cargo", "lf": "Low LF", "rate": 7.0600000000000005}, {"dest": "BAH", "type": "All", "lf": "Low LF", "rate": 1.7}, {"dest": "BAH", "type": "All", "lf": "High LF", "rate": 2.7}, {"dest": "BCN", "type": "All", "lf": "Low LF", "rate": 4.64}, {"dest": "BCN", "type": "All", "lf": "High LF", "rate": 5.64}, {"dest": "BEG", "type": "Cargo", "lf": "Low LF", "rate": 4.5600000000000005}, {"dest": "BEG", "type": "Pax", "lf": "High LF", "rate": 5.0600000000000005}, {"dest": "BEG", "type": "Cargo", "lf": "High LF", "rate": 6.5600000000000005}, {"dest": "BER", "type": "All", "lf": "High LF", "rate": 4.68}, {"dest": "BEY", "type": "All", "lf": "Low LF", "rate": 2.19}, {"dest": "BGW", "type": "All", "lf": "Low LF", "rate": 3.63}, {"dest": "BGW", "type": "All", "lf": "High LF", "rate": 5.63}, {"dest": "BJL", "type": "All", "lf": "Low LF", "rate": 8.72}, {"dest": "BJL", "type": "All", "lf": "High LF", "rate": 10.72}, {"dest": "BKK", "type": "All", "lf": "Low LF", "rate": 1.24}, {"dest": "BKK", "type": "All", "lf": "High LF", "rate": 2.14}, {"dest": "BKO", "type": "All", "lf": "Low LF", "rate": 12.88}, {"dest": "BKO", "type": "All", "lf": "High LF", "rate": 12.88}, {"dest": "BLR", "type": "All", "lf": "High LF", "rate": 2.33}, {"dest": "BOG", "type": "All", "lf": "Low LF", "rate": 6.01}, {"dest": "BOM", "type": "All", "lf": "Low LF", "rate": 1.35}, {"dest": "BOM", "type": "All", "lf": "High LF", "rate": 2.25}, {"dest": "BOS", "type": "All", "lf": "Low LF", "rate": 4.97}, {"dest": "BOS", "type": "All", "lf": "High LF", "rate": 7.97}, {"dest": "BRU", "type": "All", "lf": "High LF", "rate": 4.82}, {"dest": "BUD", "type": "All", "lf": "Low LF", "rate": 4.64}, {"dest": "BUD", "type": "All", "lf": "High LF", "rate": 7.64}, {"dest": "CAI", "type": "All", "lf": "Low LF", "rate": 2.1}, {"dest": "CAI", "type": "All", "lf": "High LF", "rate": 5.1}, {"dest": "CAN", "type": "Pax", "lf": "High LF", "rate": 1.8199999999999998}, {"dest": "CDG", "type": "All", "lf": "High LF", "rate": 5.72}, {"dest": "CGK", "type": "All", "lf": "Low LF", "rate": 3.35}, {"dest": "CKY", "type": "All", "lf": "Low LF", "rate": 6.82}, {"dest": "CKY", "type": "All", "lf": "High LF", "rate": 8.82}, {"dest": "CMB", "type": "Pax", "lf": "Low LF", "rate": 2.37}, {"dest": "CMB", "type": "Pax", "lf": "High LF", "rate": 3.37}, {"dest": "CMB", "type": "Cargo", "lf": "High LF", "rate": 2.87}, {"dest": "CMN", "type": "All", "lf": "Low LF", "rate": 4.75}, {"dest": "CMN", "type": "All", "lf": "High LF", "rate": 6.75}, {"dest": "COO", "type": "All", "lf": "Low LF", "rate": 10.88}, {"dest": "COO", "type": "All", "lf": "High LF", "rate": 12.88}, {"dest": "CPH", "type": "Pax", "lf": "Low LF", "rate": 3.7800000000000002}, {"dest": "CPH", "type": "Pax", "lf": "High LF", "rate": 3.7800000000000002}, {"dest": "CPH", "type": "Cargo", "lf": "High LF", "rate": 5.78}, {"dest": "CPT", "type": "All", "lf": "Low LF", "rate": 2.81}, {"dest": "CPT", "type": "All", "lf": "High LF", "rate": 5.8100000000000005}, {"dest": "DAC", "type": "Pax", "lf": "Low LF", "rate": 2.31}, {"dest": "DAC", "type": "Pax", "lf": "High LF", "rate": 3.81}, {"dest": "DAC", "type": "Cargo", "lf": "High LF", "rate": 3.81}, {"dest": "DAR", "type": "All", "lf": "Low LF", "rate": 10.72}, {"dest": "DAR", "type": "All", "lf": "High LF", "rate": 12.72}, {"dest": "DEL", "type": "All", "lf": "High LF", "rate": 2.71}, {"dest": "DEN", "type": "All", "lf": "Low LF", "rate": 5.02}, {"dest": "DEN", "type": "All", "lf": "High LF", "rate": 8.02}, {"dest": "DFW", "type": "All", "lf": "Low LF", "rate": 7.01}, {"dest": "DLA", "type": "All", "lf": "Low LF", "rate": 10.82}, {"dest": "DLA", "type": "All", "lf": "High LF", "rate": 12.82}, {"dest": "DMM", "type": "All", "lf": "Low LF", "rate": 1.77}, {"dest": "DMM", "type": "All", "lf": "High LF", "rate": 2.77}, {"dest": "DOH", "type": "All", "lf": "Low LF", "rate": 2.17}, {"dest": "DOH", "type": "All", "lf": "High LF", "rate": 3.17}, {"dest": "DSS", "type": "Pax", "lf": "Low LF", "rate": 6.74}, {"dest": "DSS", "type": "Cargo", "lf": "Low LF", "rate": 6.74}, {"dest": "DSS", "type": "Pax", "lf": "High LF", "rate": 8.24}, {"dest": "DSS", "type": "Cargo", "lf": "High LF", "rate": 8.24}, {"dest": "DTW", "type": "All", "lf": "Low LF", "rate": 4.82}, {"dest": "DTW", "type": "All", "lf": "High LF", "rate": 7.82}, {"dest": "DUB", "type": "Pax", "lf": "High LF", "rate": 5.9399999999999995}, {"dest": "DUB", "type": "Cargo", "lf": "High LF", "rate": 5.9399999999999995}, {"dest": "DUR", "type": "All", "lf": "Low LF", "rate": 5.85}, {"dest": "DUR", "type": "All", "lf": "High LF", "rate": 5.85}, {"dest": "DUS", "type": "All", "lf": "High LF", "rate": 4.86}, {"dest": "DWC", "type": "All", "lf": "Low LF", "rate": 3.71}, {"dest": "DWC", "type": "All", "lf": "High LF", "rate": 5.71}, {"dest": "DXB", "type": "All", "lf": "Low LF", "rate": 2.21}, {"dest": "DXB", "type": "All", "lf": "High LF", "rate": 3.21}, {"dest": "EBB", "type": "All", "lf": "Low LF", "rate": 10.79}, {"dest": "EBB", "type": "All", "lf": "High LF", "rate": 12.79}, {"dest": "EBL", "type": "All", "lf": "Low LF", "rate": 3.7}, {"dest": "EBL", "type": "All", "lf": "High LF", "rate": 5.7}, {"dest": "EWR", "type": "All", "lf": "Low LF", "rate": 4.99}, {"dest": "EWR", "type": "All", "lf": "High LF", "rate": 7.99}, {"dest": "EZE", "type": "All", "lf": "Low LF", "rate": 11.02}, {"dest": "FCO", "type": "All", "lf": "High LF", "rate": 5.6}, {"dest": "FIH", "type": "Pax", "lf": "Low LF", "rate": 6.29}, {"dest": "FIH", "type": "Cargo", "lf": "Low LF", "rate": 6.29}, {"dest": "FIH", "type": "Pax", "lf": "High LF", "rate": 7.79}, {"dest": "FIH", "type": "Cargo", "lf": "High LF", "rate": 7.79}, {"dest": "FRA", "type": "All", "lf": "Low LF", "rate": 3.7199999999999998}, {"dest": "GRU", "type": "All", "lf": "Low LF", "rate": 6.97}, {"dest": "GRU", "type": "All", "lf": "High LF", "rate": 11.97}, {"dest": "GVA", "type": "All", "lf": "High LF", "rate": 4.85}, {"dest": "GYD", "type": "All", "lf": "High LF", "rate": 5.8}, {"dest": "HAM", "type": "All", "lf": "Low LF", "rate": 6.75}, {"dest": "HAM", "type": "All", "lf": "High LF", "rate": 9.75}, {"dest": "HAN", "type": "All", "lf": "High LF", "rate": 1.95}, {"dest": "HAV", "type": "All", "lf": "High LF", "rate": 6.33}, {"dest": "HBE", "type": "All", "lf": "Low LF", "rate": 11.45}, {"dest": "HBE", "type": "All", "lf": "High LF", "rate": 13.45}, {"dest": "HEL", "type": "All", "lf": "Low LF", "rate": 4.66}, {"dest": "HEL", "type": "All", "lf": "High LF", "rate": 5.66}, {"dest": "HKG", "type": "All", "lf": "High LF", "rate": 1.46}, {"dest": "HND", "type": "All", "lf": "High LF", "rate": 2.71}, {"dest": "IAD", "type": "All", "lf": "Low LF", "rate": 4.96}, {"dest": "IAD", "type": "All", "lf": "High LF", "rate": 7.96}, {"dest": "IAH", "type": "All", "lf": "Low LF", "rate": 7.01}, {"dest": "ICN", "type": "Pax", "lf": "High LF", "rate": 2.25}, {"dest": "JED", "type": "All", "lf": "High LF", "rate": 5.8}, {"dest": "JFK", "type": "All", "lf": "Low LF", "rate": 5.53}, {"dest": "JIB", "type": "All", "lf": "Low LF", "rate": 9.95}, {"dest": "JIB", "type": "All", "lf": "High LF", "rate": 9.95}, {"dest": "JNB", "type": "Pax", "lf": "Low LF", "rate": 3.4800000000000004}, {"dest": "JNB", "type": "Cargo", "lf": "Low LF", "rate": 3.4800000000000004}, {"dest": "JNB", "type": "Pax", "lf": "High LF", "rate": 5.78}, {"dest": "JNB", "type": "Cargo", "lf": "High LF", "rate": 5.78}, {"dest": "JUB", "type": "All", "lf": "Low LF", "rate": 12.73}, {"dest": "JUB", "type": "All", "lf": "High LF", "rate": 12.73}, {"dest": "KBL", "type": "All", "lf": "High LF", "rate": 4.45}, {"dest": "KGL", "type": "All", "lf": "Low LF", "rate": 10.78}, {"dest": "KGL", "type": "All", "lf": "High LF", "rate": 12.78}, {"dest": "KHI", "type": "Pax", "lf": "Low LF", "rate": 2.25}, {"dest": "KHI", "type": "Pax", "lf": "High LF", "rate": 3.05}, {"dest": "KHI", "type": "Cargo", "lf": "High LF", "rate": 3.05}, {"dest": "KIX", "type": "All", "lf": "High LF", "rate": 3.13}, {"dest": "KTI", "type": "All", "lf": "High LF", "rate": 5.9399999999999995}, {"dest": "KUL", "type": "Pax", "lf": "Low LF", "rate": 1.8}, {"dest": "KUL", "type": "Pax", "lf": "High LF", "rate": 2.6}, {"dest": "KWI", "type": "All", "lf": "Low LF", "rate": 1.58}, {"dest": "KWI", "type": "All", "lf": "High LF", "rate": 2.58}, {"dest": "LAD", "type": "All", "lf": "Low LF", "rate": 2.75}, {"dest": "LAD", "type": "All", "lf": "High LF", "rate": 5.25}, {"dest": "LAX", "type": "All", "lf": "Low LF", "rate": 5.57}, {"dest": "LAX", "type": "All", "lf": "High LF", "rate": 8.07}, {"dest": "LBV", "type": "All", "lf": "Low LF", "rate": 12.9}, {"dest": "LBV", "type": "All", "lf": "High LF", "rate": 12.9}, {"dest": "LGG", "type": "All", "lf": "High LF", "rate": 5.99}, {"dest": "LHE", "type": "All", "lf": "High LF", "rate": 2.67}, {"dest": "LHR", "type": "All", "lf": "Low LF", "rate": 3.73}, {"dest": "LIS", "type": "All", "lf": "Low LF", "rate": 3.75}, {"dest": "LIS", "type": "All", "lf": "High LF", "rate": 5.75}, {"dest": "LNZ", "type": "All", "lf": "Low LF", "rate": 4.74}, {"dest": "LNZ", "type": "All", "lf": "High LF", "rate": 5.74}, {"dest": "LOS", "type": "All", "lf": "Low LF", "rate": 6.68}, {"dest": "LOS", "type": "All", "lf": "High LF", "rate": 8.68}, {"dest": "LUN", "type": "All", "lf": "Low LF", "rate": 12.78}, {"dest": "LUN", "type": "All", "lf": "High LF", "rate": 12.78}, {"dest": "MAA", "type": "All", "lf": "High LF", "rate": 2.54}, {"dest": "MAD", "type": "All", "lf": "Low LF", "rate": 4.65}, {"dest": "MAN", "type": "All", "lf": "High LF", "rate": 4.78}, {"dest": "MBA", "type": "All", "lf": "Low LF", "rate": 10.75}, {"dest": "MBA", "type": "All", "lf": "High LF", "rate": 12.75}, {"dest": "MED", "type": "All", "lf": "High LF", "rate": 3.79}, {"dest": "MEL", "type": "All", "lf": "Low LF", "rate": 2.65}, {"dest": "MEL", "type": "All", "lf": "High LF", "rate": 4.15}, {"dest": "MEX", "type": "All", "lf": "Low LF", "rate": 5.95}, {"dest": "MGQ", "type": "All", "lf": "Low LF", "rate": 8.81}, {"dest": "MGQ", "type": "All", "lf": "High LF", "rate": 8.81}, {"dest": "MIA", "type": "Pax", "lf": "Low LF", "rate": 5.96}, {"dest": "MIA", "type": "Cargo", "lf": "Low LF", "rate": 4.96}, {"dest": "MLA", "type": "All", "lf": "Low LF", "rate": 4.08}, {"dest": "MLA", "type": "All", "lf": "High LF", "rate": 5.08}, {"dest": "MLE", "type": "All", "lf": "Low LF", "rate": 2.33}, {"dest": "MLE", "type": "All", "lf": "High LF", "rate": 3.23}, {"dest": "MNL", "type": "All", "lf": "Low LF", "rate": 2.05}, {"dest": "MNL", "type": "All", "lf": "High LF", "rate": 4.35}, {"dest": "MPM", "type": "All", "lf": "Low LF", "rate": 5.8100000000000005}, {"dest": "MPM", "type": "All", "lf": "High LF", "rate": 5.8100000000000005}, {"dest": "MRU", "type": "All", "lf": "Low LF", "rate": 4.12}, {"dest": "MRU", "type": "All", "lf": "High LF", "rate": 5.82}, {"dest": "MUC", "type": "All", "lf": "Low LF", "rate": 3.7199999999999998}, {"dest": "MUC", "type": "All", "lf": "High LF", "rate": 5.22}, {"dest": "MXP", "type": "All", "lf": "High LF", "rate": 5.65}, {"dest": "NBO", "type": "Pax", "lf": "Low LF", "rate": 1.57}, {"dest": "NBO", "type": "Cargo", "lf": "Low LF", "rate": 7.77}, {"dest": "NBO", "type": "Pax", "lf": "High LF", "rate": 3.77}, {"dest": "NBO", "type": "Cargo", "lf": "High LF", "rate": 7.77}, {"dest": "NKC", "type": "All", "lf": "Low LF", "rate": 8.71}, {"dest": "NKC", "type": "All", "lf": "High LF", "rate": 10.71}, {"dest": "NLU", "type": "All", "lf": "Low LF", "rate": 5.95}, {"dest": "NLU", "type": "All", "lf": "High LF", "rate": 7.95}, {"dest": "NQZ", "type": "All", "lf": "High LF", "rate": 4.21}, {"dest": "NRT", "type": "All", "lf": "High LF", "rate": 3.06}, {"dest": "NSI", "type": "All", "lf": "Low LF", "rate": 4.86}, {"dest": "NSI", "type": "All", "lf": "High LF", "rate": 8.86}, {"dest": "ORD", "type": "All", "lf": "Low LF", "rate": 5.99}, {"dest": "ORN", "type": "All", "lf": "Low LF", "rate": 6.63}, {"dest": "ORN", "type": "All", "lf": "High LF", "rate": 8.63}, {"dest": "OSL", "type": "All", "lf": "Low LF", "rate": 4.22}, {"dest": "OSL", "type": "All", "lf": "High LF", "rate": 6.22}, {"dest": "OTP", "type": "All", "lf": "Low LF", "rate": 3.5}, {"dest": "OTP", "type": "All", "lf": "High LF", "rate": 7.5}, {"dest": "OUA", "type": "All", "lf": "Low LF", "rate": 12.71}, {"dest": "OUA", "type": "All", "lf": "High LF", "rate": 12.71}, {"dest": "PEK", "type": "All", "lf": "High LF", "rate": 2.26}, {"dest": "PRG", "type": "All", "lf": "Low LF", "rate": 4.14}, {"dest": "PRG", "type": "All", "lf": "High LF", "rate": 7.64}, {"dest": "PTY", "type": "All", "lf": "Low LF", "rate": 9.0}, {"dest": "PTY", "type": "All", "lf": "High LF", "rate": 11.0}, {"dest": "PVG", "type": "Pax", "lf": "High LF", "rate": 2.19}, {"dest": "RUH", "type": "All", "lf": "Low LF", "rate": 4.52}, {"dest": "RUH", "type": "All", "lf": "High LF", "rate": 7.02}, {"dest": "SCL", "type": "All", "lf": "Low LF", "rate": 8.129999999999999}, {"dest": "SEA", "type": "All", "lf": "Low LF", "rate": 5.0}, {"dest": "SEA", "type": "All", "lf": "High LF", "rate": 7.5}, {"dest": "SEZ", "type": "All", "lf": "Low LF", "rate": 3.87}, {"dest": "SEZ", "type": "All", "lf": "High LF", "rate": 5.87}, {"dest": "SFO", "type": "All", "lf": "Low LF", "rate": 5.02}, {"dest": "SGN", "type": "Pax", "lf": "High LF", "rate": 2.93}, {"dest": "SIN", "type": "Pax", "lf": "Low LF", "rate": 1.9}, {"dest": "SIN", "type": "Pax", "lf": "High LF", "rate": 2.7}, {"dest": "STN", "type": "All", "lf": "High LF", "rate": 3.6}, {"dest": "STR", "type": "All", "lf": "Low LF", "rate": 3.84}, {"dest": "STR", "type": "All", "lf": "High LF", "rate": 4.84}, {"dest": "SYD", "type": "All", "lf": "Low LF", "rate": 5.09}, {"dest": "SYD", "type": "All", "lf": "High LF", "rate": 7.09}, {"dest": "TAS", "type": "Pax", "lf": "High LF", "rate": 5.84}, {"dest": "TAS", "type": "Cargo", "lf": "High LF", "rate": 4.64}, {"dest": "TNR", "type": "All", "lf": "Low LF", "rate": 3.45}, {"dest": "TPE", "type": "Pax", "lf": "High LF", "rate": 2.73}, {"dest": "TUN", "type": "Cargo", "lf": "Low LF", "rate": 5.72}, {"dest": "TUN", "type": "Cargo", "lf": "High LF", "rate": 8.72}, {"dest": "UBN", "type": "All", "lf": "High LF", "rate": 6.539999999999999}, {"dest": "UIO", "type": "All", "lf": "Low LF", "rate": 11.15}, {"dest": "UIO", "type": "All", "lf": "High LF", "rate": 13.15}, {"dest": "VIE", "type": "All", "lf": "Low LF", "rate": 3.66}, {"dest": "VIE", "type": "All", "lf": "High LF", "rate": 6.66}, {"dest": "VLC", "type": "All", "lf": "High LF", "rate": 4.71}, {"dest": "VNO", "type": "All", "lf": "High LF", "rate": 5.64}, {"dest": "WAW", "type": "All", "lf": "Low LF", "rate": 4.99}, {"dest": "WAW", "type": "All", "lf": "High LF", "rate": 8.99}, {"dest": "YUL", "type": "All", "lf": "Low LF", "rate": 6.9}, {"dest": "YUL", "type": "All", "lf": "High LF", "rate": 8.9}, {"dest": "YVR", "type": "All", "lf": "High LF", "rate": 7.9}, {"dest": "ZNZ", "type": "All", "lf": "Low LF", "rate": 8.7}, {"dest": "ZNZ", "type": "All", "lf": "High LF", "rate": 8.7}, {"dest": "ZRH", "type": "All", "lf": "Low LF", "rate": 3.99}, {"dest": "ZRH", "type": "All", "lf": "High LF", "rate": 5.99}];
+let MCR_DESTS = new Set(["MPM", "JFK", "LHR", "UBN", "MLE", "AGP", "DXB", "SGN", "YUL", "ZNZ", "MUC", "MIA", "TAS", "CGK", "BRU", "LBV", "NSI", "BOM", "DMM", "EBL", "MXP", "VIE", "ALG", "CMN", "FRA", "MEL", "JIB", "BEY", "MAN", "OUA", "GRU", "OTP", "LHE", "MBA", "BUD", "LIS", "SEZ", "KGL", "LUN", "LOS", "EZE", "DUR", "DLA", "FCO", "MGQ", "RUH", "ACC", "BEG", "PEK", "BLR", "KUL", "VNO", "CMB", "KHI", "CAN", "SEA", "HEL", "DEN", "SYD", "SFO", "JED", "NKC", "TNR", "DAC", "MAA", "JUB", "ICN", "VLC", "PRG", "ATL", "ALA", "BAH", "ORD", "BGW", "LNZ", "NBO", "COO", "NQZ", "MAD", "BER", "DUB", "LAD", "BCN", "CAI", "BOG", "ABJ", "UIO", "ARN", "YVR", "ZRH", "ADD", "MED", "STN", "MNL", "CPT", "DEL", "FIH", "DFW", "BKK", "AMS", "DSS", "MRU", "LAX", "JNB", "MLA", "BKO", "DUS", "IAD", "SCL", "DTW", "ASB", "TPE", "KBL", "STR", "LGG", "GYD", "KTI", "AMD", "ATH", "WAW", "HND", "PTY", "DAR", "CKY", "TUN", "KWI", "NLU", "IAH", "NRT", "ORN", "CDG", "DOH", "HAM", "BOS", "HBE", "KIX", "MEX", "GVA", "OSL", "DWC", "EBB", "CPH", "AMM", "ASM", "SIN", "ABV", "BJL", "HKG", "PVG", "HAV", "EWR", "HAN"]);
 
 let mcrLFFilter = 'all';
 let mcrTypeFilter = 'all';
@@ -804,6 +910,97 @@ function updateRateLookupMCR(){
   }
 }
 
+
+function toggleAdmin(){
+  document.getElementById('adminPanel').classList.toggle('open');
+}
+
+function applyUSDCAD(){
+  const val = parseFloat(document.getElementById('usdcadAdmin').value);
+  if(isNaN(val) || val < 1){ document.getElementById('usdcadStatus').textContent='Invalid rate.'; document.getElementById('usdcadStatus').className='admin-status err'; return; }
+  // Sync with MCR tab input if exists
+  const mcrInput = document.getElementById('usdcadRate');
+  if(mcrInput) mcrInput.value = val.toFixed(4);
+  renderMCR();
+  document.getElementById('usdcadStatus').textContent = '✓ Rate updated to ' + val.toFixed(4);
+  document.getElementById('usdcadStatus').className = 'admin-status ok';
+}
+
+function importMCR(input){
+  const file = input.files[0];
+  const status = document.getElementById('mcrStatus');
+  if(!file){ return; }
+  status.textContent = 'Reading file...';
+  status.className = 'admin-status';
+
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1});
+
+      const parsed = [];
+      for(const row of rows){
+        if(!row[0] || !row[3]) continue;
+        const dest = String(row[0]).trim().toUpperCase();
+        const type = String(row[1]||'').trim();
+        const lf = String(row[2]||'').trim();
+        const rate = parseFloat(row[3]);
+        if(isNaN(rate)) continue;
+        parsed.push({dest, type, lf, rate});
+      }
+
+      if(!parsed.length){ status.textContent='No valid rows found.'; status.className='admin-status err'; return; }
+
+      // Update global MCR data
+      MCR.length = 0;
+      parsed.forEach(r => MCR.push(r));
+
+      // Update MCR_DESTS
+      MCR_DESTS.clear();
+      parsed.forEach(r => MCR_DESTS.add(r.dest));
+
+      renderMCR();
+      status.textContent = '✓ ' + parsed.length + ' entries loaded (' + MCR_DESTS.size + ' destinations)';
+      status.className = 'admin-status ok';
+      input.value = '';
+    } catch(err){
+      status.textContent = 'Error: ' + err.message;
+      status.className = 'admin-status err';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
 </script>
+
+<!-- Admin Panel -->
+<div class="admin-float">
+  <button class="admin-btn" onclick="toggleAdmin()" title="Admin Panel">⚙</button>
+</div>
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-panel-title">⚙ Admin Panel</div>
+
+  <div class="admin-section">
+    <div class="admin-section-label">Update MCR Rates</div>
+    <div class="admin-drop" onclick="document.getElementById('mcrFileInput').click()">
+      📂 Click to upload MCR Excel (.xlsx)
+      <input type="file" id="mcrFileInput" accept=".xlsx,.xls" onchange="importMCR(this)">
+    </div>
+    <div class="admin-status" id="mcrStatus"></div>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-label">USD / CAD Exchange Rate</div>
+    <div class="usdcad-row">
+      <input type="number" id="usdcadAdmin" placeholder="e.g. 1.38" step="0.001" min="1" value="1.38">
+      <button onclick="applyUSDCAD()">Apply</button>
+    </div>
+    <div class="admin-status" id="usdcadStatus"></div>
+  </div>
+</div>
+
 </body>
 </html>
