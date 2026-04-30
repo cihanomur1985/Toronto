@@ -12,11 +12,16 @@ function toggleAdmin(){
 function applyUSDCAD(){
   const val = parseFloat(document.getElementById('usdcadAdmin').value);
   if(isNaN(val) || val < 1){ document.getElementById('usdcadStatus').textContent='Invalid rate.'; document.getElementById('usdcadStatus').className='admin-status err'; return; }
-  // Sync with MCR tab input if exists
   const mcrInput = document.getElementById('usdcadRate');
   if(mcrInput) mcrInput.value = val.toFixed(4);
   renderMCR();
-  document.getElementById('usdcadStatus').textContent = '✓ Rate updated to ' + val.toFixed(4);
+  // Write to Firebase so all users see the update
+  if(typeof window.fbSetUSDCAD === 'function'){
+    window.fbSetUSDCAD(val);
+    document.getElementById('usdcadStatus').textContent = '✓ Rate updated to ' + val.toFixed(4) + ' — synced to all users';
+  } else {
+    document.getElementById('usdcadStatus').textContent = '✓ Rate updated to ' + val.toFixed(4);
+  }
   document.getElementById('usdcadStatus').className = 'admin-status ok';
 }
 
@@ -57,7 +62,13 @@ function importMCR(input){
       parsed.forEach(r => MCR_DESTS.add(r.dest));
 
       renderMCR();
-      status.textContent = '✓ ' + parsed.length + ' entries loaded (' + MCR_DESTS.size + ' destinations)';
+      // Write to Firebase so all users see the update
+      if(typeof window.fbSetMCR === 'function'){
+        window.fbSetMCR(parsed);
+        status.textContent = '✓ ' + parsed.length + ' entries loaded (' + MCR_DESTS.size + ' dests) — synced to all users';
+      } else {
+        status.textContent = '✓ ' + parsed.length + ' entries loaded (' + MCR_DESTS.size + ' destinations)';
+      }
       status.className = 'admin-status ok';
       input.value = '';
     } catch(err){
@@ -918,11 +929,16 @@ function toggleAdmin(){
 function applyUSDCAD(){
   const val = parseFloat(document.getElementById('usdcadAdmin').value);
   if(isNaN(val) || val < 1){ document.getElementById('usdcadStatus').textContent='Invalid rate.'; document.getElementById('usdcadStatus').className='admin-status err'; return; }
-  // Sync with MCR tab input if exists
   const mcrInput = document.getElementById('usdcadRate');
   if(mcrInput) mcrInput.value = val.toFixed(4);
   renderMCR();
-  document.getElementById('usdcadStatus').textContent = '✓ Rate updated to ' + val.toFixed(4);
+  // Write to Firebase so all users see the update
+  if(typeof window.fbSetUSDCAD === 'function'){
+    window.fbSetUSDCAD(val);
+    document.getElementById('usdcadStatus').textContent = '✓ Rate updated to ' + val.toFixed(4) + ' — synced to all users';
+  } else {
+    document.getElementById('usdcadStatus').textContent = '✓ Rate updated to ' + val.toFixed(4);
+  }
   document.getElementById('usdcadStatus').className = 'admin-status ok';
 }
 
@@ -963,7 +979,13 @@ function importMCR(input){
       parsed.forEach(r => MCR_DESTS.add(r.dest));
 
       renderMCR();
-      status.textContent = '✓ ' + parsed.length + ' entries loaded (' + MCR_DESTS.size + ' destinations)';
+      // Write to Firebase so all users see the update
+      if(typeof window.fbSetMCR === 'function'){
+        window.fbSetMCR(parsed);
+        status.textContent = '✓ ' + parsed.length + ' entries loaded (' + MCR_DESTS.size + ' dests) — synced to all users';
+      } else {
+        status.textContent = '✓ ' + parsed.length + ' entries loaded (' + MCR_DESTS.size + ' destinations)';
+      }
       status.className = 'admin-status ok';
       input.value = '';
     } catch(err){
