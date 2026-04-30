@@ -310,6 +310,7 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
       <input type="number" id="usdcadAdmin" placeholder="e.g. 1.38" step="0.001" min="1" value="1.38">
       <button onclick="applyUSDCAD()">Apply</button>
     </div>
+    <button onclick="fetchLiveRate()" style="width:100%;margin-top:8px;height:36px;background:rgba(80,160,255,0.12);border:1px solid rgba(80,160,255,0.3);border-radius:8px;color:#80b8ff;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.2s;" onmouseover="this.style.background='rgba(80,160,255,0.22)'" onmouseout="this.style.background='rgba(80,160,255,0.12)'">🔄 Fetch Live USD/CAD Rate</button>
     <div class="admin-status" id="usdcadStatus"></div>
   </div>
 </div>
@@ -379,6 +380,7 @@ function doLogin() {
     document.getElementById('appScreen').style.display = 'block';
     document.getElementById('displayUser').textContent = user;
     err.textContent = '';
+    document.querySelector('.admin-float').style.display = (user === ADMIN_USER) ? 'block' : 'none';
   } else {
     err.textContent = 'Invalid username or password.';
     document.getElementById('loginPass').value = '';
@@ -400,6 +402,7 @@ if(currentUser && CREDENTIALS[currentUser]) {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appScreen').style.display = 'block';
   document.getElementById('displayUser').textContent = currentUser;
+  document.querySelector('.admin-float').style.display = (currentUser === ADMIN_USER) ? 'block' : 'none';
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
@@ -567,7 +570,15 @@ function switchTab(idx) {
 }
 
 // ── Admin ─────────────────────────────────────────────────────────────────
-function toggleAdmin() { document.getElementById('adminPanel').classList.toggle('open'); }
+const ADMIN_USER = 'Cihan';
+
+function toggleAdmin() {
+  if(currentUser !== ADMIN_USER) {
+    alert('Admin panel is restricted to authorized users only.');
+    return;
+  }
+  document.getElementById('adminPanel').classList.toggle('open');
+}
 
 function applyUSDCAD() {
   const val=parseFloat(document.getElementById('usdcadAdmin').value);
@@ -624,6 +635,35 @@ function importMCR(input) {
     }
   };
   reader.readAsArrayBuffer(file);
+}
+
+// ── Live Rate Fetch ───────────────────────────────────────────────────────
+async function fetchLiveRate() {
+  const st = document.getElementById('usdcadStatus');
+  st.textContent = '⏳ Fetching live rate...';
+  st.className = 'admin-status';
+  try {
+    // Using Frankfurter API - free, no key needed
+    const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=CAD');
+    const data = await res.json();
+    const rate = data.rates.CAD;
+    if(!rate || isNaN(rate)) throw new Error('Invalid response');
+    document.getElementById('usdcadAdmin').value = rate.toFixed(4);
+    // Auto apply
+    const inp = document.getElementById('usdcadRate');
+    if(inp) inp.value = rate.toFixed(4);
+    renderMCR();
+    if(typeof window.fbSetUSDCAD === 'function') {
+      window.fbSetUSDCAD(rate);
+      st.textContent = '✓ Live rate: ' + rate.toFixed(4) + ' — synced to all users';
+    } else {
+      st.textContent = '✓ Live rate fetched: ' + rate.toFixed(4);
+    }
+    st.className = 'admin-status ok';
+  } catch(e) {
+    st.textContent = '✗ Could not fetch rate. Try manually.';
+    st.className = 'admin-status err';
+  }
 }
 
 // ── Keyboard ──────────────────────────────────────────────────────────────
