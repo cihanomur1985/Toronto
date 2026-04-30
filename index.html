@@ -643,29 +643,37 @@ async function fetchLiveRate() {
   st.textContent = '⏳ Fetching live rate...';
   st.className = 'admin-status';
 
-  // Try multiple APIs in order
   const apis = [
+    // No CORS issues - these serve with open CORS headers
+    async () => {
+      const r = await fetch('https://api.coinbase.com/v2/exchange-rates?currency=USD');
+      const d = await r.json();
+      return parseFloat(d.data.rates.CAD);
+    },
+    async () => {
+      const r = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json');
+      const d = await r.json();
+      return parseFloat(d.usd.cad);
+    },
+    async () => {
+      const r = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=CAD');
+      const d = await r.json();
+      return parseFloat(d.rates.CAD);
+    },
     async () => {
       const r = await fetch('https://open.er-api.com/v6/latest/USD');
       const d = await r.json();
-      return d.rates.CAD;
-    },
-    async () => {
-      const r = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
-      const d = await r.json();
-      return d.usd.cad;
-    },
-    async () => {
-      const r = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-      const d = await r.json();
-      return d.rates.CAD;
+      return parseFloat(d.rates.CAD);
     }
   ];
 
   for(const api of apis) {
     try {
-      const rate = await api();
-      if(!rate || isNaN(rate)) continue;
+      const rate = await Promise.race([
+        api(),
+        new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 5000))
+      ]);
+      if(!rate || isNaN(rate) || rate < 1) continue;
       document.getElementById('usdcadAdmin').value = rate.toFixed(4);
       const inp = document.getElementById('usdcadRate');
       if(inp) inp.value = rate.toFixed(4);
