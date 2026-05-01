@@ -24,7 +24,7 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
 .login-field label{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);}
 .login-field input{height:46px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:0 16px;font-size:15px;font-family:'Inter',sans-serif;color:#fff;outline:none;transition:border-color 0.2s;}
 .login-field input::placeholder{color:rgba(255,255,255,0.2)}
-.login-field input:focus{border-color:#cc0000;background:rgba(204,0,0,0.08);}
+.login-field input:focus{border-color:#cc0000;background:rgba(20,10,10,0.9);color:#fff;}
 .login-btn{width:100%;height:48px;background:linear-gradient(135deg,#cc0000,#990000);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;margin-top:8px;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 4px 20px rgba(204,0,0,0.4);}
 .login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(204,0,0,0.55);}
 .login-error{font-size:13px;color:#ff6666;text-align:center;margin-top:14px;min-height:18px;}
@@ -192,7 +192,7 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
       <label>Password</label>
       <div style="position:relative;">
         <input type="password" id="loginPass" placeholder="Enter your password" autocomplete="current-password" style="width:100%;padding-right:44px;">
-        <button onclick="togglePassVis()" id="eyeBtn" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#cc0000;font-size:18px;padding:0;line-height:1;transition:color 0.2s;" onmouseover="this.style.color='#ff4444'" onmouseout="this.style.color='#cc0000'">👁</button>
+        <button onclick="togglePassVis()" id="eyeBtn" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#cc0000;font-size:18px;z-index:10;padding:0;line-height:1;transition:color 0.2s;" onmouseover="this.style.color='#ff4444'" onmouseout="this.style.color='#cc0000'">👁</button>
       </div>
     </div>
     <button class="login-btn" onclick="doLogin()">Sign In</button>
@@ -462,10 +462,10 @@ function togglePassVis() {
   const btn = document.getElementById('eyeBtn');
   if(inp.type === 'password') {
     inp.type = 'text';
-    btn.style.color = 'rgba(255,180,0,0.8)';
+    btn.style.color = '#cc0000';
   } else {
     inp.type = 'password';
-    btn.style.color = 'rgba(255,255,255,0.35)';
+    btn.style.color = '#cc0000';
   }
 }
 
