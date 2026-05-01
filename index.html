@@ -188,7 +188,13 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
     <div class="login-title">Turkish Cargo <span>Toronto</span></div>
     <div class="login-sub">Rate Sheet Portal</div>
     <div class="login-field"><label>Username</label><input type="text" id="loginUser" placeholder="Enter your username" autocomplete="username"></div>
-    <div class="login-field"><label>Password</label><input type="password" id="loginPass" placeholder="Enter your password" autocomplete="current-password"></div>
+    <div class="login-field">
+      <label>Password</label>
+      <div style="position:relative;">
+        <input type="password" id="loginPass" placeholder="Enter your password" autocomplete="current-password" style="width:100%;padding-right:44px;">
+        <button onclick="togglePassVis()" id="eyeBtn" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.35);font-size:18px;padding:0;line-height:1;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">👁</button>
+      </div>
+    </div>
     <button class="login-btn" onclick="doLogin()">Sign In</button>
     <div class="login-error" id="loginError"></div>
     <div class="login-footer">Authorized personnel only</div>
@@ -450,6 +456,18 @@ const COL_LABELS = {M:'0–22 kg',N:'23–44 kg','45':'45–99 kg','100':'100–
 
 // ── Auth ──────────────────────────────────────────────────────────────────
 let currentUser = sessionStorage.getItem('tcUser') || null;
+
+function togglePassVis() {
+  const inp = document.getElementById('loginPass');
+  const btn = document.getElementById('eyeBtn');
+  if(inp.type === 'password') {
+    inp.type = 'text';
+    btn.style.color = 'rgba(255,180,0,0.8)';
+  } else {
+    inp.type = 'password';
+    btn.style.color = 'rgba(255,255,255,0.35)';
+  }
+}
 
 function doLogin() {
   const user = document.getElementById('loginUser').value.trim();
