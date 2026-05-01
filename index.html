@@ -216,8 +216,10 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
 .fbl-drop-zone-normal{border-color:rgba(80,160,255,0.25);}
 .fbl-drop-zone-normal.drag-over{border-color:rgba(80,160,255,0.6);background:rgba(80,160,255,0.05);}
 .fbl-drop-empty{font-size:12px;color:rgba(255,255,255,0.2);text-align:center;padding:16px;font-style:italic;}
-.fbl-awb-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;cursor:grab;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:all 0.15s;user-select:none;}
+.fbl-awb-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:all 0.15s;user-select:none;}
 .fbl-awb-card:hover{background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.2);}
+.fbl-awb-card.selected{background:rgba(204,0,0,0.12);border-color:rgba(204,0,0,0.5);}
+
 .fbl-awb-card.dragging{opacity:0.4;transform:scale(0.97);}
 .fbl-awb-card.must{border-left:3px solid rgba(255,180,0,0.7);}
 .fbl-awb-card.normal{border-left:3px solid rgba(80,160,255,0.6);}
@@ -240,7 +242,7 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
 .fbl-stat span{font-weight:700;color:#fff;margin-left:4px;}
 .fbl-awb-agent{font-size:10px;color:rgba(255,255,255,0.35);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:280px;}
 
-.fbl-cb{width:15px;height:15px;cursor:pointer;accent-color:#cc0000;flex-shrink:0;margin-top:2px;}
+.fbl-cb{width:18px;height:18px;cursor:pointer;accent-color:#cc0000;flex-shrink:0;margin-top:2px;}
 .fbl-bulk-bar{display:none;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px;background:rgba(204,0,0,0.1);border:1px solid rgba(204,0,0,0.3);border-radius:8px;margin-bottom:12px;}
 .fbl-bulk-bar.visible{display:flex;}
 .fbl-bulk-label{font-size:12px;font-weight:700;color:#ff8080;}
@@ -1297,7 +1299,8 @@ function makeCard(awb, zone) {
   const checked = fblSelected.has(awb) ? 'checked' : '';
   const safeId = 'card_' + awb.replace(/[^a-z0-9]/gi,'_');
   return `<div class="fbl-awb-card ${zoneCls}" id="${safeId}"
-    draggable="true" ondragstart="onDragStart(event,'${awb}')" ondragend="onDragEnd(event)">
+    draggable="true" ondragstart="onDragStart(event,'${awb}')" ondragend="onDragEnd(event)"
+    onclick="fblCardClick(event,'${awb}')">
     <input type="checkbox" class="fbl-cb" ${checked}
       onchange="fblToggleSelect('${awb}',this.checked)" onclick="event.stopPropagation()">
     <div class="fbl-awb-left">
@@ -1328,6 +1331,12 @@ function renderFBLZones() {
       awbs.forEach(awb => { el.insertAdjacentHTML('beforeend', makeCard(awb, zone)); });
     }
   });
+  // Apply selected class
+  fblSelected.forEach(awb => {
+    const safeId = 'card_' + awb.replace(/[^a-z0-9]/gi,'_');
+    const card = document.getElementById(safeId);
+    if(card) { card.classList.add('selected'); const cb=card.querySelector('.fbl-cb'); if(cb) cb.checked=true; }
+  });
 }
 
 function updateRemarks(awb, val) { const s=getShipment(awb); if(s) s.remarks=val; }
@@ -1347,7 +1356,24 @@ function updateFBLStats() {
 
 function fblToggleSelect(awb, checked) {
   if(checked) fblSelected.add(awb); else fblSelected.delete(awb);
+  // Sync checkbox and visual state
+  const safeId = 'card_' + awb.replace(/[^a-z0-9]/gi,'_');
+  const card = document.getElementById(safeId);
+  if(card) {
+    const cb = card.querySelector('.fbl-cb');
+    if(cb) cb.checked = checked;
+    card.classList.toggle('selected', checked);
+  }
   fblUpdateBulkBar();
+}
+
+function fblCardClick(event, awb) {
+  // Don't trigger if clicking the checkbox itself or remarks input
+  if(event.target.classList.contains('fbl-cb') || event.target.classList.contains('fbl-remarks-input')) return;
+  // Don't trigger on drag
+  if(event.detail === 0) return;
+  const isSelected = fblSelected.has(awb);
+  fblToggleSelect(awb, !isSelected);
 }
 function fblUpdateBulkBar() {
   const bar=document.getElementById('fblBulkBar');
