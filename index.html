@@ -141,7 +141,7 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
 .mcr-tooltip-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:7px;border:1px solid rgba(255,255,255,0.07);}
 .mcr-tooltip-left{display:flex;gap:6px;align-items:center;}
 .mcr-tooltip-right{font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;color:#fff;text-align:right;}
-.mcr-tooltip-cad{display:block;font-size:10px;font-weight:500;color:rgba(255,180,0,0.75);}
+.mcr-tooltip-cad{display:block;font-size:11px;font-weight:400;color:rgba(255,255,255,0.35);margin-top:2px;}
 .admin-float{position:fixed;bottom:24px;right:24px;z-index:500;}
 .admin-btn{width:44px;height:44px;border-radius:50%;background:rgba(30,20,10,0.9);border:1px solid rgba(255,180,0,0.3);color:rgba(255,180,0,0.7);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.5);transition:all 0.2s;}
 .admin-btn:hover{border-color:rgba(255,180,0,0.8);color:#ffd060;}
@@ -509,7 +509,7 @@ function getMCRBox(dest) {
   const rows = entries.map(r=>{
     const cad=(r.rate*fx).toFixed(2);
     const lfCls=r.lf==='High LF'?'lf-high':'lf-low';
-    return `<div class="mcr-tooltip-row"><div class="mcr-tooltip-left"><span class="${lfCls}" style="font-size:10px;padding:2px 7px">${r.lf}</span><span class="type-badge" style="font-size:10px;padding:2px 7px">${r.type}</span></div><div class="mcr-tooltip-right">${r.rate.toFixed(2)} <span style="font-size:11px;color:rgba(255,255,255,0.35)">USD</span><span class="mcr-tooltip-cad">${cad} CAD</span></div></div>`;
+    return `<div class="mcr-tooltip-row"><div class="mcr-tooltip-left"><span class="${lfCls}" style="font-size:10px;padding:2px 7px">${r.lf}</span><span class="type-badge" style="font-size:10px;padding:2px 7px">${r.type}</span></div><div class="mcr-tooltip-right"><span style="font-size:18px;font-weight:700;color:#fff;">${cad}</span> <span style="font-size:11px;color:rgba(255,180,0,0.85);font-weight:600;">CAD</span><span class="mcr-tooltip-cad">${r.rate.toFixed(2)} USD</span></div></div>`;
   }).join('');
   return `<div class="mcr-applicable-wrap"><div class="mcr-applicable-badge"><span>⚠</span> MCR Applicable</div><div class="mcr-tooltip"><div class="mcr-tooltip-title">📈 MCR Rates — ${dest}</div><div class="mcr-tooltip-grid">${rows}</div></div></div>`;
 }
