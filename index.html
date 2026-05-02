@@ -1264,11 +1264,21 @@ function importFBLBook(input) {
       }
       if(!parsed.length) { st.textContent='No AWB rows found.'; st.style.color='#ff8080'; return; }
       fblShipments = parsed;
-      fblZones = { must:[], normal:[], standby:[...parsed.map(s=>s.awb)] };
+      // Auto-assign to must go if SCC contains priority codes
+      const PRIORITY_SCCS = ['URG','XPS','PIL','STD','EXT','ADV'];
+      const mustAuto = [];
+      const standbyRest = [];
+      parsed.forEach(s => {
+        const sccUpper = (s.scc||'').toUpperCase();
+        const hasPriority = PRIORITY_SCCS.some(code => sccUpper.split(/[,\s]+/).includes(code));
+        if(hasPriority) mustAuto.push(s.awb);
+        else standbyRest.push(s.awb);
+      });
+      fblZones = { must: mustAuto, normal: [], standby: standbyRest };
       fblSelected.clear();
       renderFBLZones();
       updateFBLStats();
-      st.textContent = '✓ ' + parsed.length + ' AWBs loaded';
+      st.textContent = '✓ ' + parsed.length + ' AWBs loaded' + (mustAuto.length ? ' · ' + mustAuto.length + ' auto-assigned to Must Go' : '');
       st.style.color = '#5dca8a';
       input.value = '';
       // Auto fill flight + date
