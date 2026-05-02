@@ -1453,7 +1453,7 @@ function escXml(s) {
 
 async function generateFBL() {
   const flight  = document.getElementById('fblFlight').value.trim() || 'TK0018';
-  const date    = document.getElementById('fblDate').value || new Date().toISOString().split('T')[0];
+  const date    = document.getElementById('fblDate').value || new Date().toLocaleDateString('en-CA', {timeZone:'America/Toronto', year:'numeric', month:'2-digit', day:'2-digit'}).split('/').reverse().join('-');
   const allAwbs = [...fblZones.must, ...fblZones.normal, ...fblZones.standby];
   if(!allAwbs.length) { alert('No AWBs loaded. Please upload a booking Excel first.'); return; }
 
@@ -1607,7 +1607,8 @@ document.getElementById('destInput2').addEventListener('keydown',e=>{if(e.key===
 document.addEventListener('DOMContentLoaded',()=>{
   renderNosale();renderMCR();renderIATA();renderCustomers();
   // Set FBL default date to today
-  const today = new Date().toISOString().split('T')[0];
+  // Use Toronto (Eastern) timezone for default date
+  const today = new Date().toLocaleDateString('en-CA', {timeZone:'America/Toronto', year:'numeric', month:'2-digit', day:'2-digit'}).split('/').reverse().join('-');
   const fblDateEl = document.getElementById('fblDate');
   if(fblDateEl && !fblDateEl.value) fblDateEl.value = today;
 });
