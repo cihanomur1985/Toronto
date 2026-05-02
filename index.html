@@ -1452,100 +1452,91 @@ async function generateFBL() {
     let sharedXml = await zip.file('xl/sharedStrings.xml').async('string');
     let wbXml     = await zip.file('xl/workbook.xml').async('string');
 
+    // Pre-extracted J-cell XML and row attributes from template (preserves formulas/styles)
+    const J_CELLS = {"18": "<c r=\"J18\" s=\"44\" t=\"s\"><v>22</v></c>", "19": "<c r=\"J19\" s=\"45\"><f>SUM(G18:G27)</f><v>0</v></c>", "20": "<c r=\"J20\" s=\"44\" t=\"s\"><v>14</v></c>", "21": "<c r=\"J21\" s=\"46\"><f>SUM(H18:H27)</f><v>0</v></c>", "22": "<c r=\"J22\" s=\"39\"/>", "23": "<c r=\"J23\" s=\"39\"/>", "24": "<c r=\"J24\" s=\"39\"/>", "25": "<c r=\"J25\" s=\"39\"/>", "26": "<c r=\"J26\" s=\"40\"/>", "27": "<c r=\"J27\" s=\"41\"/>", "30": "<c r=\"J30\" s=\"44\" t=\"s\"><v>22</v></c>", "31": "<c r=\"J31\" s=\"45\"><f>SUM(G30:G71)</f><v>0</v></c>", "32": "<c r=\"J32\" s=\"44\" t=\"s\"><v>14</v></c>", "33": "<c r=\"J33\" s=\"46\"><f>SUM(H30:H71)</f><v>0</v></c>", "34": "<c r=\"J34\" s=\"42\"/>", "35": "<c r=\"J35\" s=\"42\"/>", "36": "<c r=\"J36\" s=\"42\"/>", "37": "<c r=\"J37\" s=\"42\"/>", "38": "<c r=\"J38\" s=\"42\"/>", "39": "<c r=\"J39\" s=\"42\"/>", "40": "<c r=\"J40\" s=\"42\"/>", "41": "<c r=\"J41\" s=\"42\"/>", "42": "<c r=\"J42\" s=\"42\"/>", "43": "<c r=\"J43\" s=\"42\"/>", "44": "<c r=\"J44\" s=\"42\"/>", "45": "<c r=\"J45\" s=\"42\"/>", "46": "<c r=\"J46\" s=\"42\"/>", "47": "<c r=\"J47\" s=\"42\"/>", "48": "<c r=\"J48\" s=\"42\"/>", "49": "<c r=\"J49\" s=\"42\"/>", "50": "<c r=\"J50\" s=\"42\"/>", "51": "<c r=\"J51\" s=\"42\"/>", "52": "<c r=\"J52\" s=\"42\"/>", "53": "<c r=\"J53\" s=\"42\"/>", "54": "<c r=\"J54\" s=\"42\"/>", "55": "<c r=\"J55\" s=\"42\"/>", "56": "<c r=\"J56\" s=\"42\"/>", "57": "<c r=\"J57\" s=\"42\"/>", "58": "<c r=\"J58\" s=\"42\"/>", "59": "<c r=\"J59\" s=\"42\"/>", "60": "<c r=\"J60\" s=\"42\"/>", "61": "<c r=\"J61\" s=\"42\"/>", "62": "<c r=\"J62\" s=\"42\"/>", "63": "<c r=\"J63\" s=\"42\"/>", "64": "<c r=\"J64\" s=\"42\"/>", "65": "<c r=\"J65\" s=\"42\"/>", "66": "<c r=\"J66\" s=\"42\"/>", "67": "<c r=\"J67\" s=\"42\"/>", "68": "<c r=\"J68\" s=\"42\"/>", "69": "<c r=\"J69\" s=\"42\"/>", "70": "<c r=\"J70\" s=\"42\"/>", "71": "<c r=\"J71\" s=\"42\"/>", "74": "<c r=\"J74\" s=\"44\" t=\"s\"><v>22</v></c>", "75": "<c r=\"J75\" s=\"45\"><f>SUM(G74:G88)</f><v>0</v></c>", "76": "<c r=\"J76\" s=\"44\" t=\"s\"><v>14</v></c>", "77": "<c r=\"J77\" s=\"46\"><f>SUM(H74:H88)</f><v>0</v></c>", "78": "<c r=\"J78\" s=\"43\"/>", "79": "<c r=\"J79\" s=\"43\"/>", "80": "<c r=\"J80\" s=\"43\"/>", "81": "<c r=\"J81\" s=\"43\"/>", "82": "<c r=\"J82\" s=\"43\"/>", "83": "<c r=\"J83\" s=\"43\"/>", "84": "<c r=\"J84\" s=\"43\"/>", "85": "<c r=\"J85\" s=\"43\"/>", "86": "<c r=\"J86\" s=\"43\"/>", "87": "<c r=\"J87\" s=\"43\"/>", "88": "<c r=\"J88\" s=\"43\"/>"};
+    const ROW_ATTRS = {"18": " spans=\"1:10\" x14ac:dyDescent=\"0.3\"", "19": " spans=\"1:10\" x14ac:dyDescent=\"0.3\"", "20": " spans=\"1:10\" x14ac:dyDescent=\"0.3\"", "21": " spans=\"1:10\" ht=\"15\" thickBot=\"1\" x14ac:dyDescent=\"0.35\"", "22": " spans=\"1:10\" x14ac:dyDescent=\"0.3\"", "23": " spans=\"1:10\" x14ac:dyDescent=\"0.3\"", "24": " spans=\"1:10\" x14ac:dyDescent=\"0.3\"", "25": " spans=\"1:10\" x14ac:dyDescent=\"0.3\"", "26": " spans=\"1:10\" ht=\"15.75\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "27": " spans=\"1:10\" ht=\"15.75\" customHeight=\"1\" thickBot=\"1\" x14ac:dyDescent=\"0.35\"", "30": " spans=\"1:10\" x14ac:dyDescent=\"0.3\"", "31": " spans=\"1:10\" x14ac:dyDescent=\"0.3\"", "32": " spans=\"1:10\" x14ac:dyDescent=\"0.3\"", "33": " spans=\"1:10\" ht=\"15\" thickBot=\"1\" x14ac:dyDescent=\"0.35\"", "34": " spans=\"1:10\" x14ac:dyDescent=\"0.3\"", "35": " spans=\"1:10\" x14ac:dyDescent=\"0.3\"", "36": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "37": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "38": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "39": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "40": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "41": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "42": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "43": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "44": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "45": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "46": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "47": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "48": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "49": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "50": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "51": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "52": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "53": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "54": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "55": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "56": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "57": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "58": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "59": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "60": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "61": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "62": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "63": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "64": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "65": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "66": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "67": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "68": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "69": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "70": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "71": " spans=\"1:10\" ht=\"15\" customHeight=\"1\" thickBot=\"1\" x14ac:dyDescent=\"0.35\"", "74": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "75": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "76": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "77": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" thickBot=\"1\" x14ac:dyDescent=\"0.35\"", "78": " spans=\"1:10\" s=\"14\" customFormat=\"1\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "79": " spans=\"1:10\" s=\"14\" customFormat=\"1\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "80": " spans=\"1:10\" s=\"14\" customFormat=\"1\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "81": " spans=\"1:10\" s=\"14\" customFormat=\"1\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "82": " spans=\"1:10\" s=\"14\" customFormat=\"1\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "83": " spans=\"1:10\" s=\"14\" customFormat=\"1\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "84": " spans=\"1:10\" s=\"14\" customFormat=\"1\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "85": " spans=\"1:10\" s=\"14\" customFormat=\"1\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "86": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "87": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\"", "88": " spans=\"1:10\" ht=\"14.4\" customHeight=\"1\" x14ac:dyDescent=\"0.3\""};
+
     // ── SharedStrings manager ──────────────────────────────────────────────
     const strList = [];
     sharedXml.replace(/<si><t[^>]*>(.*?)<\/t><\/si>/g, (_, t) => { strList.push(t); });
     const strMap = {};
     strList.forEach((s,i) => strMap[s] = i);
-
     function getIdx(val) {
       const s = String(val||'');
       if(strMap[s] !== undefined) return strMap[s];
-      const idx = strList.length;
-      strList.push(s);
-      strMap[s] = idx;
-      return idx;
+      const idx = strList.length; strList.push(s); strMap[s] = idx; return idx;
     }
-
     function esc(s) {
       return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
     }
 
-    // Build ONLY the A-I portion of a data row (keep J column / formula intact)
-    // We replace existing row's A-I cells only
-    function buildAtoI(r, section, s) {
+    // Build complete row XML: A-I data cells + original J cell from template
+    function makeRow(r, section, s) {
       let sA, sG, sH, sI;
       if(section==='must')        { sA='17'; sG='31'; sH='31'; sI='26'; }
       else if(section==='normal') { sA='16'; sG='35'; sH='35'; sI='36'; }
       else                        { sA='16'; sG='35'; sH='35'; sI='38'; }
-      const pcs = parseInt(s.pcs)||0;
-      const wgt = parseFloat(s.weight)||0;
-      const cbm = parseFloat(s.cbm)||0;
-      return `<c r="A${r}" s="${sA}" t="s"><v>${getIdx(s.awb||'')}</v></c>` +
-             `<c r="B${r}" s="${sA}" t="s"><v>${getIdx(s.agent||'')}</v></c>` +
-             `<c r="C${r}" s="${sA}" t="s"><v>${getIdx(s.scc||'')}</v></c>` +
-             `<c r="D${r}" s="${sA}" t="s"><v>${getIdx(s.origin||'')}</v></c>` +
-             `<c r="E${r}" s="${sA}" t="s"><v>${getIdx(s.dest||'')}</v></c>` +
-             `<c r="F${r}" s="${sA}"><v>${pcs}</v></c>` +
-             `<c r="G${r}" s="${sG}"><v>${wgt}</v></c>` +
-             `<c r="H${r}" s="${sH}"><v>${cbm}</v></c>` +
-             `<c r="I${r}" s="${sI}" t="s"><v>${getIdx(s.remarks||'')}</v></c>`;
+      const pcs=parseInt(s.pcs)||0, wgt=parseFloat(s.weight)||0, cbm=parseFloat(s.cbm)||0;
+      const aCells = s.awb ?
+        `<c r="A${r}" s="${sA}" t="s"><v>${getIdx(s.awb||'')}</v></c>` +
+        `<c r="B${r}" s="${sA}" t="s"><v>${getIdx(s.agent||'')}</v></c>` +
+        `<c r="C${r}" s="${sA}" t="s"><v>${getIdx(s.scc||'')}</v></c>` +
+        `<c r="D${r}" s="${sA}" t="s"><v>${getIdx(s.origin||'')}</v></c>` +
+        `<c r="E${r}" s="${sA}" t="s"><v>${getIdx(s.dest||'')}</v></c>` +
+        `<c r="F${r}" s="${sA}"><v>${pcs}</v></c>` +
+        `<c r="G${r}" s="${sG}"><v>${wgt}</v></c>` +
+        `<c r="H${r}" s="${sH}"><v>${cbm}</v></c>` +
+        `<c r="I${r}" s="${sI}" t="s"><v>${getIdx(s.remarks||'')}</v></c>`
+        :
+        `<c r="A${r}" s="${sA}"/><c r="B${r}" s="${sA}"/><c r="C${r}" s="${sA}"/>` +
+        `<c r="D${r}" s="${sA}"/><c r="E${r}" s="${sA}"/><c r="F${r}" s="${sA}"/>` +
+        `<c r="G${r}" s="${sG}"/><c r="H${r}" s="${sH}"/><c r="I${r}" s="${sI}"/>`;
+      const jCell = J_CELLS[String(r)] || '';
+      const rowAttrs = ROW_ATTRS[String(r)] || ' spans="1:10" x14ac:dyDescent="0.3"';
+      return `<row r="${r}"${rowAttrs}>${aCells}${jCell}</row>`;
     }
 
-    function emptyAtoI(r, section) {
-      let sA, sG, sH, sI;
-      if(section==='must')        { sA='17'; sG='31'; sH='31'; sI='26'; }
-      else if(section==='normal') { sA='16'; sG='35'; sH='35'; sI='36'; }
-      else                        { sA='16'; sG='35'; sH='35'; sI='38'; }
-      return `<c r="A${r}" s="${sA}"/><c r="B${r}" s="${sA}"/><c r="C${r}" s="${sA}"/>` +
-             `<c r="D${r}" s="${sA}"/><c r="E${r}" s="${sA}"/><c r="F${r}" s="${sA}"/>` +
-             `<c r="G${r}" s="${sG}"/><c r="H${r}" s="${sH}"/><c r="I${r}" s="${sI}"/>`;
-    }
-
-    // Replace A-I cells in a row, preserving J column exactly
-    function replaceRowAtoI(xml, r, newAtoI) {
-      // Match the row, capture everything before J cell and J cell onwards
-      const re = new RegExp(
-        `(<row r="${r}"[^>]*>)` +           // opening row tag
-        `(?:<c r="[A-I]${r}"[^>]*(?:/>|>[^<]*(?:<[^/][^>]*>[^<]*<\/[^>]*>)*<\/c>))*` + // existing A-I cells
-        `(<c r="J${r}"[\\s\\S]*?</row>|</row>)` // J cell + close OR just close
-      , 's');
-      return xml.replace(re, (_, rowOpen, jAndClose) => rowOpen + newAtoI + jAndClose);
-    }
-
-    // ── Update B1 (orgdest), B2 (flight), B3 (date) ───────────────────────
-    sheetXml = sheetXml.replace(/<c r="B1" s="1" t="s"><v>17<\/v><\/c>/, `<c r="B1" s="1" t="s"><v>${getIdx('YYZ/IST')}</v></c>`);
+    // ── Update B1(orgdest), B2(flight), B3(date) ───────────────────────────
+    sheetXml = sheetXml.replace(/<c r="B1" s="1" t="s"><v>17<\/v><\/c>/,
+      `<c r="B1" s="1" t="s"><v>${getIdx('YYZ/IST')}</v></c>`);
     sheetXml = sheetXml.replace(
       /(<c r="A2" s="1" t="s"><v>1<\/v><\/c>)(<c r="B2" s="1"\/>)/,
-      `$1<c r="B2" s="1" t="s"><v>${getIdx(flight)}</v></c>`
-    );
+      `$1<c r="B2" s="1" t="s"><v>${getIdx(flight)}</v></c>`);
     sheetXml = sheetXml.replace(
       /(<c r="A3" s="1" t="s"><v>2<\/v><\/c>)(<c r="B3" s="2"\/>)/,
-      `$1<c r="B3" s="2" t="s"><v>${getIdx(date)}</v></c>`
-    );
+      `$1<c r="B3" s="2" t="s"><v>${getIdx(date)}</v></c>`);
 
-    // ── Fill Must Go rows 18-27 ────────────────────────────────────────────
+    // ── Replace data rows by substituting each row directly ─────────────
+    // Must Go: rows 18-27
+    let mustBlock = '';
     for(let i=0;i<10;i++) {
-      const r = 18+i;
-      const awb = fblZones.must[i];
-      const cells = awb ? buildAtoI(r,'must',getShipment(awb)||{awb}) : emptyAtoI(r,'must');
-      sheetXml = replaceRowAtoI(sheetXml, r, cells);
+      const r=18+i, awb=fblZones.must[i];
+      mustBlock += makeRow(r, 'must', awb ? (getShipment(awb)||{awb}) : {});
     }
-
-    // ── Fill Normal rows 30-71 ────────────────────────────────────────────
+    // Normal: rows 30-71
+    let normBlock = '';
     for(let i=0;i<42;i++) {
-      const r = 30+i;
-      const awb = fblZones.normal[i];
-      const cells = awb ? buildAtoI(r,'normal',getShipment(awb)||{awb}) : emptyAtoI(r,'normal');
-      sheetXml = replaceRowAtoI(sheetXml, r, cells);
+      const r=30+i, awb=fblZones.normal[i];
+      normBlock += makeRow(r, 'normal', awb ? (getShipment(awb)||{awb}) : {});
+    }
+    // Standby: rows 74-88
+    let sbBlock = '';
+    for(let i=0;i<15;i++) {
+      const r=74+i, awb=fblZones.standby[i];
+      sbBlock += makeRow(r, 'standby', awb ? (getShipment(awb)||{awb}) : {});
     }
 
-    // ── Fill Standby rows 74-88 ───────────────────────────────────────────
-    for(let i=0;i<15;i++) {
-      const r = 74+i;
-      const awb = fblZones.standby[i];
-      const cells = awb ? buildAtoI(r,'standby',getShipment(awb)||{awb}) : emptyAtoI(r,'standby');
-      sheetXml = replaceRowAtoI(sheetXml, r, cells);
+    // Replace row blocks in sheet XML
+    sheetXml = sheetXml.replace(/<row r="18"[\s\S]*?(?=<row r="28")/, mustBlock);
+    sheetXml = sheetXml.replace(/<row r="30"[\s\S]*?(?=<row r="72")/, normBlock);
+    sheetXml = sheetXml.replace(/<row r="74"[\s\S]*?(?=<\/sheetData>)/, sbBlock);
+
+    // ── Force recalculation ────────────────────────────────────────────────
+    sheetXml = sheetXml.replace(/(<f>[^<]+<\/f>)<v>[^<]*<\/v>/g, '$1');
+    if(wbXml.includes('<calcPr')) {
+      wbXml = wbXml.replace(/<calcPr[^>]*\/>/g, '<calcPr calcId="0" fullCalcOnLoad="1"/>');
+    } else {
+      wbXml = wbXml.replace('<\/workbook>', '<calcPr calcId="0" fullCalcOnLoad="1"/><\/workbook>');
     }
 
     // ── Rebuild sharedStrings ──────────────────────────────────────────────
@@ -1556,23 +1547,13 @@ async function generateFBL() {
       `</sst>`;
 
     // ── Update sheet name ──────────────────────────────────────────────────
-    const sheetName = (flight + ' FBL ' + date).substring(0,31).replace(/[\\/*?[\]:]/g,'_');
+    const sheetName = (flight + ' FBL ' + date).substring(0,31).replace(/[\/*?[\]:]/g,'_');
     wbXml = wbXml.replace(/name="[^"]*"/, `name="${esc(sheetName)}"`);
-
-    // ── Force recalculation: remove cached <v> from formula cells ───────────
-    sheetXml = sheetXml.replace(/(<f>[^<]+<\/f>)<v>[^<]*<\/v>/g, '$1');
-    // Add fullCalcOnLoad so Excel recalculates all formulas on open
-    if(wbXml.includes('<calcPr')) {
-      wbXml = wbXml.replace(/<calcPr[^>]*\/>/g, '<calcPr calcId="0" fullCalcOnLoad="1"/>');
-    } else {
-      wbXml = wbXml.replace('</workbook>', '<calcPr calcId="0" fullCalcOnLoad="1"/></workbook>');
-    }
 
     // ── Write & download ───────────────────────────────────────────────────
     zip.file('xl/worksheets/sheet1.xml', sheetXml);
     zip.file('xl/sharedStrings.xml', newSharedXml);
     zip.file('xl/workbook.xml', wbXml);
-    // Remove calcChain (stale after edits) - Excel will recalculate
     zip.remove('xl/calcChain.xml');
     let ctXml = await zip.file('[Content_Types].xml').async('string');
     ctXml = ctXml.replace(/<Override PartName="\/xl\/calcChain\.xml"[^/]*\/>/g, '');
