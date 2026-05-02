@@ -1448,9 +1448,9 @@ async function generateFBL() {
     const templateBytes = b64ToUint8(FBL_TEMPLATE_B64);
     const zip = await JSZip.loadAsync(templateBytes);
 
-    let sheetXml   = await zip.file('xl/worksheets/sheet1.xml').async('string');
-    let sharedXml  = await zip.file('xl/sharedStrings.xml').async('string');
-    let wbXml      = await zip.file('xl/workbook.xml').async('string');
+    let sheetXml  = await zip.file('xl/worksheets/sheet1.xml').async('string');
+    let sharedXml = await zip.file('xl/sharedStrings.xml').async('string');
+    let wbXml     = await zip.file('xl/workbook.xml').async('string');
 
     // ── SharedStrings manager ──────────────────────────────────────────────
     const strList = [];
@@ -1458,7 +1458,7 @@ async function generateFBL() {
     const strMap = {};
     strList.forEach((s,i) => strMap[s] = i);
 
-    function getStrIdx(val) {
+    function getIdx(val) {
       const s = String(val||'');
       if(strMap[s] !== undefined) return strMap[s];
       const idx = strList.length;
@@ -1471,87 +1471,82 @@ async function generateFBL() {
       return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
     }
 
-    // Data row using sharedStrings (t="s") - no inlineStr
-    function dataRow(r, section, s) {
+    // Build ONLY the A-I portion of a data row (keep J column / formula intact)
+    // We replace existing row's A-I cells only
+    function buildAtoI(r, section, s) {
       let sA, sG, sH, sI;
-      if(section==='must')   { sA='17'; sG='31'; sH='31'; sI='26'; }
+      if(section==='must')        { sA='17'; sG='31'; sH='31'; sI='26'; }
       else if(section==='normal') { sA='16'; sG='35'; sH='35'; sI='36'; }
-      else                   { sA='16'; sG='35'; sH='35'; sI='38'; }
-      const awbIdx   = getStrIdx(s.awb||'');
-      const agentIdx = getStrIdx(s.agent||'');
-      const sccIdx   = getStrIdx(s.scc||'');
-      const origIdx  = getStrIdx(s.origin||'');
-      const destIdx  = getStrIdx(s.dest||'');
-      const remIdx   = getStrIdx(s.remarks||'');
-      const pcs  = parseInt(s.pcs)||0;
-      const wgt  = parseFloat(s.weight)||0;
-      const cbm  = parseFloat(s.cbm)||0;
-      return `<row r="${r}" spans="1:10" x14ac:dyDescent="0.3">` +
-        `<c r="A${r}" s="${sA}" t="s"><v>${awbIdx}</v></c>` +
-        `<c r="B${r}" s="${sA}" t="s"><v>${agentIdx}</v></c>` +
-        `<c r="C${r}" s="${sA}" t="s"><v>${sccIdx}</v></c>` +
-        `<c r="D${r}" s="${sA}" t="s"><v>${origIdx}</v></c>` +
-        `<c r="E${r}" s="${sA}" t="s"><v>${destIdx}</v></c>` +
-        `<c r="F${r}" s="${sA}"><v>${pcs}</v></c>` +
-        `<c r="G${r}" s="${sG}"><v>${wgt}</v></c>` +
-        `<c r="H${r}" s="${sH}"><v>${cbm}</v></c>` +
-        `<c r="I${r}" s="${sI}" t="s"><v>${remIdx}</v></c>` +
-        `</row>`;
+      else                        { sA='16'; sG='35'; sH='35'; sI='38'; }
+      const pcs = parseInt(s.pcs)||0;
+      const wgt = parseFloat(s.weight)||0;
+      const cbm = parseFloat(s.cbm)||0;
+      return `<c r="A${r}" s="${sA}" t="s"><v>${getIdx(s.awb||'')}</v></c>` +
+             `<c r="B${r}" s="${sA}" t="s"><v>${getIdx(s.agent||'')}</v></c>` +
+             `<c r="C${r}" s="${sA}" t="s"><v>${getIdx(s.scc||'')}</v></c>` +
+             `<c r="D${r}" s="${sA}" t="s"><v>${getIdx(s.origin||'')}</v></c>` +
+             `<c r="E${r}" s="${sA}" t="s"><v>${getIdx(s.dest||'')}</v></c>` +
+             `<c r="F${r}" s="${sA}"><v>${pcs}</v></c>` +
+             `<c r="G${r}" s="${sG}"><v>${wgt}</v></c>` +
+             `<c r="H${r}" s="${sH}"><v>${cbm}</v></c>` +
+             `<c r="I${r}" s="${sI}" t="s"><v>${getIdx(s.remarks||'')}</v></c>`;
     }
 
-    function emptyRow(r, section) {
+    function emptyAtoI(r, section) {
       let sA, sG, sH, sI;
-      if(section==='must')   { sA='17'; sG='31'; sH='31'; sI='26'; }
+      if(section==='must')        { sA='17'; sG='31'; sH='31'; sI='26'; }
       else if(section==='normal') { sA='16'; sG='35'; sH='35'; sI='36'; }
-      else                   { sA='16'; sG='35'; sH='35'; sI='38'; }
-      return `<row r="${r}" spans="1:10" x14ac:dyDescent="0.3">` +
-        `<c r="A${r}" s="${sA}"/><c r="B${r}" s="${sA}"/><c r="C${r}" s="${sA}"/>` +
-        `<c r="D${r}" s="${sA}"/><c r="E${r}" s="${sA}"/><c r="F${r}" s="${sA}"/>` +
-        `<c r="G${r}" s="${sG}"/><c r="H${r}" s="${sH}"/><c r="I${r}" s="${sI}"/>` +
-        `</row>`;
+      else                        { sA='16'; sG='35'; sH='35'; sI='38'; }
+      return `<c r="A${r}" s="${sA}"/><c r="B${r}" s="${sA}"/><c r="C${r}" s="${sA}"/>` +
+             `<c r="D${r}" s="${sA}"/><c r="E${r}" s="${sA}"/><c r="F${r}" s="${sA}"/>` +
+             `<c r="G${r}" s="${sG}"/><c r="H${r}" s="${sH}"/><c r="I${r}" s="${sI}"/>`;
     }
 
-    // ── Update header: B1=orgdest, B2=flight, B3=date ─────────────────────
-    const orgdestIdx = getStrIdx('YYZ/IST');
-    const flightIdx  = getStrIdx(flight);
-    const dateIdx    = getStrIdx(date);
+    // Replace A-I cells in a row, preserving J column exactly
+    function replaceRowAtoI(xml, r, newAtoI) {
+      // Match the row, capture everything before J cell and J cell onwards
+      const re = new RegExp(
+        `(<row r="${r}"[^>]*>)` +           // opening row tag
+        `(?:<c r="[A-I]${r}"[^>]*(?:/>|>[^<]*(?:<[^/][^>]*>[^<]*<\/[^>]*>)*<\/c>))*` + // existing A-I cells
+        `(<c r="J${r}"[\\s\\S]*?</row>|</row>)` // J cell + close OR just close
+      , 's');
+      return xml.replace(re, (_, rowOpen, jAndClose) => rowOpen + newAtoI + jAndClose);
+    }
 
-    sheetXml = sheetXml.replace(
-      /<c r="B1" s="1" t="s"><v>17<\/v><\/c>/,
-      `<c r="B1" s="1" t="s"><v>${orgdestIdx}</v></c>`
-    );
+    // ── Update B1 (orgdest), B2 (flight), B3 (date) ───────────────────────
+    sheetXml = sheetXml.replace(/<c r="B1" s="1" t="s"><v>17<\/v><\/c>/, `<c r="B1" s="1" t="s"><v>${getIdx('YYZ/IST')}</v></c>`);
     sheetXml = sheetXml.replace(
       /(<c r="A2" s="1" t="s"><v>1<\/v><\/c>)(<c r="B2" s="1"\/>)/,
-      `$1<c r="B2" s="1" t="s"><v>${flightIdx}</v></c>`
+      `$1<c r="B2" s="1" t="s"><v>${getIdx(flight)}</v></c>`
     );
     sheetXml = sheetXml.replace(
       /(<c r="A3" s="1" t="s"><v>2<\/v><\/c>)(<c r="B3" s="2"\/>)/,
-      `$1<c r="B3" s="2" t="s"><v>${dateIdx}</v></c>`
+      `$1<c r="B3" s="2" t="s"><v>${getIdx(date)}</v></c>`
     );
 
-    // ── Build and inject section rows ──────────────────────────────────────
-    let mustBlock = '';
-    for(let i=0;i<10;i++) { const r=18+i; const awb=fblZones.must[i]; mustBlock += awb ? dataRow(r,'must',getShipment(awb)||{awb}) : emptyRow(r,'must'); }
+    // ── Fill Must Go rows 18-27 ────────────────────────────────────────────
+    for(let i=0;i<10;i++) {
+      const r = 18+i;
+      const awb = fblZones.must[i];
+      const cells = awb ? buildAtoI(r,'must',getShipment(awb)||{awb}) : emptyAtoI(r,'must');
+      sheetXml = replaceRowAtoI(sheetXml, r, cells);
+    }
 
-    let normBlock = '';
-    for(let i=0;i<42;i++) { const r=30+i; const awb=fblZones.normal[i]; normBlock += awb ? dataRow(r,'normal',getShipment(awb)||{awb}) : emptyRow(r,'normal'); }
+    // ── Fill Normal rows 30-71 ────────────────────────────────────────────
+    for(let i=0;i<42;i++) {
+      const r = 30+i;
+      const awb = fblZones.normal[i];
+      const cells = awb ? buildAtoI(r,'normal',getShipment(awb)||{awb}) : emptyAtoI(r,'normal');
+      sheetXml = replaceRowAtoI(sheetXml, r, cells);
+    }
 
-    let sbBlock = '';
-    for(let i=0;i<15;i++) { const r=74+i; const awb=fblZones.standby[i]; sbBlock += awb ? dataRow(r,'standby',getShipment(awb)||{awb}) : emptyRow(r,'standby'); }
-
-    // Replace row ranges (keep formula rows between sections intact)
-    sheetXml = sheetXml.replace(
-      /(<\/row>\s*)(<row r="18"[\s\S]*?)(<row r="28")/,
-      (_, pre, _old, next) => pre + mustBlock + next
-    );
-    sheetXml = sheetXml.replace(
-      /(<\/row>\s*)(<row r="30"[\s\S]*?)(<row r="72")/,
-      (_, pre, _old, next) => pre + normBlock + next
-    );
-    sheetXml = sheetXml.replace(
-      /(<\/row>\s*)(<row r="74"[\s\S]*?)(<\/sheetData>)/,
-      (_, pre, _old, next) => pre + sbBlock + next
-    );
+    // ── Fill Standby rows 74-88 ───────────────────────────────────────────
+    for(let i=0;i<15;i++) {
+      const r = 74+i;
+      const awb = fblZones.standby[i];
+      const cells = awb ? buildAtoI(r,'standby',getShipment(awb)||{awb}) : emptyAtoI(r,'standby');
+      sheetXml = replaceRowAtoI(sheetXml, r, cells);
+    }
 
     // ── Rebuild sharedStrings ──────────────────────────────────────────────
     const newSharedXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n` +
@@ -1568,6 +1563,7 @@ async function generateFBL() {
     zip.file('xl/worksheets/sheet1.xml', sheetXml);
     zip.file('xl/sharedStrings.xml', newSharedXml);
     zip.file('xl/workbook.xml', wbXml);
+    // Remove calcChain (stale after edits) - Excel will recalculate
     zip.remove('xl/calcChain.xml');
     let ctXml = await zip.file('[Content_Types].xml').async('string');
     ctXml = ctXml.replace(/<Override PartName="\/xl\/calcChain\.xml"[^/]*\/>/g, '');
@@ -1576,9 +1572,7 @@ async function generateFBL() {
     const blob = await zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = sheetName + '.xlsx';
-    a.click();
+    a.href = url; a.download = sheetName + '.xlsx'; a.click();
     URL.revokeObjectURL(url);
 
   } catch(err) {
