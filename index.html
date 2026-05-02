@@ -1434,153 +1434,145 @@ function escXml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
 }
 
-// Build a data row XML with exact template style indices
-function dataRowXml(rowNum, section, s) {
-  // section: 'must'|'normal'|'standby'
-  let sA, sG, sH, sI;
-  if(section==='must')    { sA='17'; sG='31'; sH='31'; sI='26'; }
-  else if(section==='normal')  { sA='16'; sG='35'; sH='35'; sI='36'; }
-  else                    { sA='16'; sG='35'; sH='35'; sI='38'; }
-
-  const awb   = escXml(s.awb||'');
-  const agent = escXml(s.agent||'');
-  const scc   = escXml(s.scc||'');
-  const orig  = escXml(s.origin||'');
-  const dest  = escXml(s.dest||'');
-  const pcs   = parseInt(s.pcs)||0;
-  const wgt   = parseFloat(s.weight)||0;
-  const cbm   = parseFloat(s.cbm)||0;
-  const rem   = escXml(s.remarks||'');
-
-  const col = (n) => String.fromCharCode(64+n); // 1=A,2=B,...
-  const colLetter = (n) => n<=26?col(n):col(Math.floor((n-1)/26))+col(((n-1)%26)+1);
-
-  return `<row r="${rowNum}" spans="1:10" x14ac:dyDescent="0.3">`+
-    `<c r="A${rowNum}" s="${sA}" t="inlineStr"><is><t>${awb}</t></is></c>`+
-    `<c r="B${rowNum}" s="${sA}" t="inlineStr"><is><t>${agent}</t></is></c>`+
-    `<c r="C${rowNum}" s="${sA}" t="inlineStr"><is><t>${scc}</t></is></c>`+
-    `<c r="D${rowNum}" s="${sA}" t="inlineStr"><is><t>${orig}</t></is></c>`+
-    `<c r="E${rowNum}" s="${sA}" t="inlineStr"><is><t>${dest}</t></is></c>`+
-    `<c r="F${rowNum}" s="${sA}"><v>${pcs}</v></c>`+
-    `<c r="G${rowNum}" s="${sG}"><v>${wgt}</v></c>`+
-    `<c r="H${rowNum}" s="${sH}"><v>${cbm}</v></c>`+
-    `<c r="I${rowNum}" s="${sI}" t="inlineStr"><is><t>${rem}</t></is></c>`+
-    `</row>`;
-}
-
-// Empty row (keep template formatting, clear data)
-function emptyRowXml(rowNum, section) {
-  let sA, sG, sH, sI;
-  if(section==='must')   { sA='17'; sG='31'; sH='31'; sI='26'; }
-  else if(section==='normal') { sA='16'; sG='35'; sH='35'; sI='36'; }
-  else                   { sA='16'; sG='35'; sH='35'; sI='38'; }
-  return `<row r="${rowNum}" spans="1:10" x14ac:dyDescent="0.3">`+
-    `<c r="A${rowNum}" s="${sA}"/><c r="B${rowNum}" s="${sA}"/><c r="C${rowNum}" s="${sA}"/>`+
-    `<c r="D${rowNum}" s="${sA}"/><c r="E${rowNum}" s="${sA}"/><c r="F${rowNum}" s="${sA}"/>`+
-    `<c r="G${rowNum}" s="${sG}"/><c r="H${rowNum}" s="${sH}"/><c r="I${rowNum}" s="${sI}"/>`+
-    `</row>`;
-}
 
 async function generateFBL() {
-  const flight  = document.getElementById('fblFlight').value.trim() || 'TK????';
-  const date    = document.getElementById('fblDate').value || '';
-  const orgdest = 'YYZ/IST'; // fixed origin
+  const flight  = document.getElementById('fblFlight').value.trim() || 'TK0018';
+  const date    = document.getElementById('fblDate').value || new Date().toISOString().split('T')[0];
   const allAwbs = [...fblZones.must, ...fblZones.normal, ...fblZones.standby];
   if(!allAwbs.length) { alert('No AWBs loaded. Please upload a booking Excel first.'); return; }
 
   try {
-    // Load JSZip
     const JSZip = window.JSZip;
-    if(!JSZip) { alert('JSZip not loaded. Please check internet connection.'); return; }
+    if(!JSZip) { alert('JSZip not loaded.'); return; }
 
-    // Load template
     const templateBytes = b64ToUint8(FBL_TEMPLATE_B64);
     const zip = await JSZip.loadAsync(templateBytes);
 
-    // Get and modify sheet XML
-    let xml = await zip.file('xl/worksheets/sheet1.xml').async('string');
+    let sheetXml   = await zip.file('xl/worksheets/sheet1.xml').async('string');
+    let sharedXml  = await zip.file('xl/sharedStrings.xml').async('string');
+    let wbXml      = await zip.file('xl/workbook.xml').async('string');
 
-    // Helper: replace a specific cell value keeping style
-    function replaceCell(xml, cellRef, newVal, isString) {
-      // Match the cell element
-      const re = new RegExp(`(<c r="${cellRef}"[^>]*)(>.*?</c>|/>)`, 's');
-      if(isString) {
-        // Replace as inline string
-        return xml.replace(re, (m, open) => {
-          // Keep style, change to inlineStr type
-          const style = open.match(/s="(\d+)"/)?.[0]||'';
-          return `<c r="${cellRef}" ${style} t="inlineStr"><is><t>${escXml(newVal)}</t></is></c>`;
-        });
-      } else {
-        return xml.replace(re, (m, open) => {
-          const style = open.match(/s="(\d+)"/)?.[0]||'';
-          return `<c r="${cellRef}" ${style}><v>${escXml(newVal)}</v></c>`;
-        });
-      }
+    // ── SharedStrings manager ──────────────────────────────────────────────
+    const strList = [];
+    sharedXml.replace(/<si><t[^>]*>(.*?)<\/t><\/si>/g, (_, t) => { strList.push(t); });
+    const strMap = {};
+    strList.forEach((s,i) => strMap[s] = i);
+
+    function getStrIdx(val) {
+      const s = String(val||'');
+      if(strMap[s] !== undefined) return strMap[s];
+      const idx = strList.length;
+      strList.push(s);
+      strMap[s] = idx;
+      return idx;
     }
 
-    // 1. Update header cells
-    xml = replaceCell(xml, 'B1', orgdest, true);
-    xml = replaceCell(xml, 'B2', flight, true);
-    xml = replaceCell(xml, 'B3', date, true);
-
-    // 2. Build replacement rows for each section
-    // MUST GO: rows 18-27 (10 slots)
-    let mustRows = '';
-    for(let i=0;i<10;i++){
-      const r=18+i;
-      const awb=fblZones.must[i];
-      mustRows += awb ? dataRowXml(r,'must',getShipment(awb)||{awb}) : emptyRowXml(r,'must');
-    }
-    // NORMAL: rows 30-71 (42 slots)
-    let normRows = '';
-    for(let i=0;i<42;i++){
-      const r=30+i;
-      const awb=fblZones.normal[i];
-      normRows += awb ? dataRowXml(r,'normal',getShipment(awb)||{awb}) : emptyRowXml(r,'normal');
-    }
-    // STANDBY: rows 74-88 (15 slots)
-    let sbRows = '';
-    for(let i=0;i<15;i++){
-      const r=74+i;
-      const awb=fblZones.standby[i];
-      sbRows += awb ? dataRowXml(r,'standby',getShipment(awb)||{awb}) : emptyRowXml(r,'standby');
+    function esc(s) {
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
     }
 
-    // 3. Replace row ranges in XML
-    // Replace rows 18-27
-    xml = xml.replace(
-      /(<row r="18"[\s\S]*?<\/row>)([\s\S]*?)(<row r="28")/,
-      (m, _first, _mid, after) => mustRows + after
+    // Data row using sharedStrings (t="s") - no inlineStr
+    function dataRow(r, section, s) {
+      let sA, sG, sH, sI;
+      if(section==='must')   { sA='17'; sG='31'; sH='31'; sI='26'; }
+      else if(section==='normal') { sA='16'; sG='35'; sH='35'; sI='36'; }
+      else                   { sA='16'; sG='35'; sH='35'; sI='38'; }
+      const awbIdx   = getStrIdx(s.awb||'');
+      const agentIdx = getStrIdx(s.agent||'');
+      const sccIdx   = getStrIdx(s.scc||'');
+      const origIdx  = getStrIdx(s.origin||'');
+      const destIdx  = getStrIdx(s.dest||'');
+      const remIdx   = getStrIdx(s.remarks||'');
+      const pcs  = parseInt(s.pcs)||0;
+      const wgt  = parseFloat(s.weight)||0;
+      const cbm  = parseFloat(s.cbm)||0;
+      return `<row r="${r}" spans="1:10" x14ac:dyDescent="0.3">` +
+        `<c r="A${r}" s="${sA}" t="s"><v>${awbIdx}</v></c>` +
+        `<c r="B${r}" s="${sA}" t="s"><v>${agentIdx}</v></c>` +
+        `<c r="C${r}" s="${sA}" t="s"><v>${sccIdx}</v></c>` +
+        `<c r="D${r}" s="${sA}" t="s"><v>${origIdx}</v></c>` +
+        `<c r="E${r}" s="${sA}" t="s"><v>${destIdx}</v></c>` +
+        `<c r="F${r}" s="${sA}"><v>${pcs}</v></c>` +
+        `<c r="G${r}" s="${sG}"><v>${wgt}</v></c>` +
+        `<c r="H${r}" s="${sH}"><v>${cbm}</v></c>` +
+        `<c r="I${r}" s="${sI}" t="s"><v>${remIdx}</v></c>` +
+        `</row>`;
+    }
+
+    function emptyRow(r, section) {
+      let sA, sG, sH, sI;
+      if(section==='must')   { sA='17'; sG='31'; sH='31'; sI='26'; }
+      else if(section==='normal') { sA='16'; sG='35'; sH='35'; sI='36'; }
+      else                   { sA='16'; sG='35'; sH='35'; sI='38'; }
+      return `<row r="${r}" spans="1:10" x14ac:dyDescent="0.3">` +
+        `<c r="A${r}" s="${sA}"/><c r="B${r}" s="${sA}"/><c r="C${r}" s="${sA}"/>` +
+        `<c r="D${r}" s="${sA}"/><c r="E${r}" s="${sA}"/><c r="F${r}" s="${sA}"/>` +
+        `<c r="G${r}" s="${sG}"/><c r="H${r}" s="${sH}"/><c r="I${r}" s="${sI}"/>` +
+        `</row>`;
+    }
+
+    // ── Update header: B1=orgdest, B2=flight, B3=date ─────────────────────
+    const orgdestIdx = getStrIdx('YYZ/IST');
+    const flightIdx  = getStrIdx(flight);
+    const dateIdx    = getStrIdx(date);
+
+    sheetXml = sheetXml.replace(
+      /<c r="B1" s="1" t="s"><v>17<\/v><\/c>/,
+      `<c r="B1" s="1" t="s"><v>${orgdestIdx}</v></c>`
     );
-    // Replace rows 30-71
-    xml = xml.replace(
-      /(<row r="30"[\s\S]*?<\/row>)([\s\S]*?)(<row r="72")/,
-      (m, _first, _mid, after) => normRows + after
+    sheetXml = sheetXml.replace(
+      /(<c r="A2" s="1" t="s"><v>1<\/v><\/c>)(<c r="B2" s="1"\/>)/,
+      `$1<c r="B2" s="1" t="s"><v>${flightIdx}</v></c>`
     );
-    // Replace rows 74-88
-    xml = xml.replace(
-      /(<row r="74"[\s\S]*?<\/row>)([\s\S]*?)(<\/sheetData>)/,
-      (m, _first, _mid, after) => sbRows + after
+    sheetXml = sheetXml.replace(
+      /(<c r="A3" s="1" t="s"><v>2<\/v><\/c>)(<c r="B3" s="2"\/>)/,
+      `$1<c r="B3" s="2" t="s"><v>${dateIdx}</v></c>`
     );
 
-    // 4. Update sheet name in workbook
-    let wbXml = await zip.file('xl/workbook.xml').async('string');
-    const sheetName = (flight+' FBL '+date).substring(0,31).replace(/[\\/*?[\]:]/g,'_');
-    wbXml = wbXml.replace(/name="[^"]*"/, `name="${escXml(sheetName)}"`);
+    // ── Build and inject section rows ──────────────────────────────────────
+    let mustBlock = '';
+    for(let i=0;i<10;i++) { const r=18+i; const awb=fblZones.must[i]; mustBlock += awb ? dataRow(r,'must',getShipment(awb)||{awb}) : emptyRow(r,'must'); }
+
+    let normBlock = '';
+    for(let i=0;i<42;i++) { const r=30+i; const awb=fblZones.normal[i]; normBlock += awb ? dataRow(r,'normal',getShipment(awb)||{awb}) : emptyRow(r,'normal'); }
+
+    let sbBlock = '';
+    for(let i=0;i<15;i++) { const r=74+i; const awb=fblZones.standby[i]; sbBlock += awb ? dataRow(r,'standby',getShipment(awb)||{awb}) : emptyRow(r,'standby'); }
+
+    // Replace row ranges (keep formula rows between sections intact)
+    sheetXml = sheetXml.replace(
+      /(<\/row>\s*)(<row r="18"[\s\S]*?)(<row r="28")/,
+      (_, pre, _old, next) => pre + mustBlock + next
+    );
+    sheetXml = sheetXml.replace(
+      /(<\/row>\s*)(<row r="30"[\s\S]*?)(<row r="72")/,
+      (_, pre, _old, next) => pre + normBlock + next
+    );
+    sheetXml = sheetXml.replace(
+      /(<\/row>\s*)(<row r="74"[\s\S]*?)(<\/sheetData>)/,
+      (_, pre, _old, next) => pre + sbBlock + next
+    );
+
+    // ── Rebuild sharedStrings ──────────────────────────────────────────────
+    const newSharedXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n` +
+      `<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" ` +
+      `count="${strList.length}" uniqueCount="${strList.length}">` +
+      strList.map(s => `<si><t xml:space="preserve">${esc(s)}</t></si>`).join('') +
+      `</sst>`;
+
+    // ── Update sheet name ──────────────────────────────────────────────────
+    const sheetName = (flight + ' FBL ' + date).substring(0,31).replace(/[\\/*?[\]:]/g,'_');
+    wbXml = wbXml.replace(/name="[^"]*"/, `name="${esc(sheetName)}"`);
+
+    // ── Write & download ───────────────────────────────────────────────────
+    zip.file('xl/worksheets/sheet1.xml', sheetXml);
+    zip.file('xl/sharedStrings.xml', newSharedXml);
     zip.file('xl/workbook.xml', wbXml);
-
-    // 5. Remove calcChain to prevent Excel formula errors after XML modification
     zip.remove('xl/calcChain.xml');
-    // Also remove from Content_Types if needed
     let ctXml = await zip.file('[Content_Types].xml').async('string');
-    ctXml = ctXml.replace(/<Override PartName="\/xl\/calcChain\.xml"[^\/]*\/>/g, '');
+    ctXml = ctXml.replace(/<Override PartName="\/xl\/calcChain\.xml"[^/]*\/>/g, '');
     zip.file('[Content_Types].xml', ctXml);
 
-    // 6. Save modified sheet XML
-    zip.file('xl/worksheets/sheet1.xml', xml);
-
-    // 6. Generate and download
     const blob = await zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
