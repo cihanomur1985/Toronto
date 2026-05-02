@@ -1266,7 +1266,7 @@ function importFBLBook(input) {
       if(!parsed.length) { st.textContent='No AWB rows found.'; st.style.color='#ff8080'; return; }
       fblShipments = parsed;
       // Auto-assign to must go if SCC contains priority codes
-      const PRIORITY_SCCS = ['URG','XPS','PIL','STD','EXT','ADV'];
+      const PRIORITY_SCCS = ['URG','XPS','PIL','STD','EXT','ADV','AVI','HUM','PES','PER','PEF','PEM'];
       const mustAuto = [];
       const standbyRest = [];
       parsed.forEach(s => {
