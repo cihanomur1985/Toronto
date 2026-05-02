@@ -1559,6 +1559,15 @@ async function generateFBL() {
     const sheetName = (flight + ' FBL ' + date).substring(0,31).replace(/[\\/*?[\]:]/g,'_');
     wbXml = wbXml.replace(/name="[^"]*"/, `name="${esc(sheetName)}"`);
 
+    // ── Force recalculation: remove cached <v> from formula cells ───────────
+    sheetXml = sheetXml.replace(/(<f>[^<]+<\/f>)<v>[^<]*<\/v>/g, '$1');
+    // Add fullCalcOnLoad so Excel recalculates all formulas on open
+    if(wbXml.includes('<calcPr')) {
+      wbXml = wbXml.replace(/<calcPr[^>]*\/>/g, '<calcPr calcId="0" fullCalcOnLoad="1"/>');
+    } else {
+      wbXml = wbXml.replace('</workbook>', '<calcPr calcId="0" fullCalcOnLoad="1"/></workbook>');
+    }
+
     // ── Write & download ───────────────────────────────────────────────────
     zip.file('xl/worksheets/sheet1.xml', sheetXml);
     zip.file('xl/sharedStrings.xml', newSharedXml);
