@@ -479,6 +479,9 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
             <button class="fbl-upload-btn" onclick="document.getElementById('fblBookFile').click()">📂 Upload Excel</button>
             <input type="file" id="fblBookFile" accept=".xlsx,.xls" style="display:none" onchange="importFBLBook(this)">
           </div>
+          <div style="align-self:flex-end;">
+            <button class="fbl-upload-btn" onclick="clearFBL()" style="border-color:rgba(255,100,100,0.3);color:rgba(255,120,120,0.8);" onmouseover="this.style.background='rgba(204,0,0,0.15)';this.style.color='#ff8080'" onmouseout="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,120,120,0.8)'">✕ Clear All</button>
+          </div>
           <button class="fbl-generate-btn" onclick="generateFBL()">⬇ Generate FBL</button>
         </div>
         <div id="fblUploadStatus" style="font-size:12px;color:rgba(255,255,255,0.4);min-height:16px;"></div>
@@ -1361,6 +1364,19 @@ function updateFBLStats() {
     `<div class="fbl-stat" style="border-color:rgba(255,180,0,0.25)">Must Go:<span style="color:#ffd060">${fblZones.must.length}</span></div>` +
     `<div class="fbl-stat" style="border-color:rgba(255,255,0,0.2)">Normal:<span style="color:#ffff80">${fblZones.normal.length}</span></div>` +
     `<div class="fbl-stat" style="border-color:rgba(255,255,255,0.15)">Standby:<span style="color:rgba(255,255,255,0.6)">${fblZones.standby.length}</span></div>`;
+}
+
+function clearFBL() {
+  if(fblShipments.length && !confirm('Clear all AWBs and reset the form?')) return;
+  fblShipments = [];
+  fblZones = { must: [], normal: [], standby: [] };
+  fblSelected.clear();
+  renderFBLZones();
+  updateFBLStats();
+  fblUpdateBulkBar();
+  document.getElementById('fblUploadStatus').textContent = '';
+  document.getElementById('fblUploadStatus').style.color = '';
+  document.getElementById('fblBookFile').value = '';
 }
 
 function fblToggleSelect(awb, checked) {
