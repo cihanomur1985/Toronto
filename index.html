@@ -2027,48 +2027,30 @@ function ctDoCopy(text, btn, resetLabel) {
 // ── Airport Codes ────────────────────────────────────────────────────────
 let AIRPORTS = [];
 
+
+
+
 function renderAirports() {
   const search = (document.getElementById('apSearch').value||'').trim().toUpperCase();
-  const statusFilter = document.getElementById('apStatusFilter').value;
   const body = document.getElementById('apBody');
   const countEl = document.getElementById('apCount');
-
-  const filtered = AIRPORTS.filter(r => {
-    if(!search) return true;
-    return r.code.includes(search) ||
-           r.name.toUpperCase().includes(search) ||
-           r.country.toUpperCase().includes(search);
-  });
-
+  const filtered = AIRPORTS.filter(r =>
+    !search || r.code.includes(search) ||
+    r.name.toUpperCase().includes(search) ||
+    r.country.toUpperCase().includes(search)
+  );
   countEl.textContent = filtered.length + ' airport' + (filtered.length!==1?'s':'') + ' shown';
-
   if(!filtered.length) {
     body.innerHTML = '<tr><td colspan="3" class="ap-empty">No airports match.</td></tr>';
     return;
   }
-
-  body.innerHTML = filtered.map(r => {
-    return `<tr>
-      <td>${r.code}</td>
-      <td style="color:rgba(255,255,255,0.85)">${r.name}</td>
-      <td class="ap-country">${r.country}</td>
-    </tr>`;
-  }).join('');
+  body.innerHTML = filtered.map(r => `<tr>
+    <td style="font-weight:800;font-family:monospace;color:#fff;letter-spacing:0.1em">${r.code}</td>
+    <td style="color:rgba(255,255,255,0.85)">${r.name}</td>
+    <td class="ap-country">${r.country}</td>
+  </tr>`).join('');
 }
 
-  body.innerHTML = filtered.map(r => {
-    const stCls = r.status === 'Active' ? 'ap-status-active' : 'ap-status-inactive';
-    const offlineHtml = r.offline === 'Y' ? '<span class="ap-offline">Offline</span>' : '<span style="color:rgba(255,255,255,0.2)">—</span>';
-    return `<tr>
-      <td>${r.code}</td>
-      <td style="color:rgba(255,255,255,0.85)">${r.name}</td>
-      <td style="color:rgba(255,255,255,0.6)">${r.city}</td>
-      <td class="ap-country">${r.country}</td>
-      <td>${offlineHtml}</td>
-      <td><span class="${stCls}">${r.status}</span></td>
-    </tr>`;
-  }).join('');
-}
 
 // ── Admin Data Uploads ───────────────────────────────────────────────────
 function adminUploadContacts(input) {
