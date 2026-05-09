@@ -309,22 +309,38 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
 .ct-email{color:rgba(80,200,255,0.85);font-size:12px;}
 .ct-empty{text-align:center;color:rgba(255,255,255,0.4);padding:32px;font-size:14px;}
 
-/* Airport Codes Tab */
-.ap-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px 28px;backdrop-filter:blur(10px);}
-.ap-search-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px;}
-.ap-count{font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:12px;}
-.ap-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.08);}
-.ap-table{width:100%;border-collapse:collapse;font-size:13px;}
-.ap-table th{background:rgba(204,0,0,0.25);color:#fff;font-weight:700;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:12px 14px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.1);white-space:nowrap;}
-.ap-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.8);vertical-align:middle;}
-.ap-table td:first-child{font-weight:800;color:#fff;font-family:monospace;letter-spacing:0.1em;}
-.ap-table tr:hover td{background:rgba(255,255,255,0.04);}
-.ap-table tr:last-child td{border-bottom:none;}
-.ap-status-active{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:rgba(0,180,80,0.12);border:1px solid rgba(0,180,80,0.3);color:#5dca8a;}
-.ap-status-inactive{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:rgba(255,100,100,0.1);border:1px solid rgba(255,100,100,0.25);color:#ff8080;}
-.ap-offline{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;background:rgba(255,180,0,0.1);border:1px solid rgba(255,180,0,0.25);color:rgba(255,200,80,0.8);}
-.ap-country{font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:0.05em;}
-.ap-empty{text-align:center;color:rgba(255,255,255,0.4);padding:32px;font-size:14px;}
+/* Contacts Tab */
+.ct-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px 28px;backdrop-filter:blur(10px);}
+.ct-search-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px;}
+.ct-input{height:44px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:0 14px;font-size:15px;font-family:'Inter',sans-serif;color:#fff;outline:none;transition:border-color 0.2s;}
+.ct-input:focus{border-color:#cc0000;background:rgba(204,0,0,0.07);}
+.ct-input::placeholder{color:rgba(255,255,255,0.25);}
+.ct-count{font-size:12px;color:rgba(255,255,255,0.35);}
+.ct-action-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;min-height:36px;}
+.ct-copy-all-btn{height:34px;padding:0 14px;background:rgba(204,0,0,0.15);border:1px solid rgba(204,0,0,0.4);border-radius:8px;color:#ff8080;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.ct-copy-all-btn:hover{background:rgba(204,0,0,0.3);color:#fff;}
+.ct-copy-sel-btn{height:34px;padding:0 14px;background:rgba(80,160,255,0.12);border:1px solid rgba(80,160,255,0.35);border-radius:8px;color:#80b8ff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.ct-copy-sel-btn:hover{background:rgba(80,160,255,0.22);color:#fff;}
+.ct-copy-all-btn.copied,.ct-copy-sel-btn.copied{background:rgba(0,180,80,0.2);border-color:rgba(0,180,80,0.5);color:#5dca8a;}
+.ct-sel-label{font-size:12px;color:rgba(255,255,255,0.4);}
+.ct-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.08);}
+.ct-table{width:100%;border-collapse:collapse;font-size:13px;}
+.ct-table th{background:rgba(204,0,0,0.25);color:#fff;font-weight:700;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:12px 14px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.1);white-space:nowrap;}
+.ct-table th:first-child{width:36px;text-align:center;}
+.ct-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.8);vertical-align:middle;}
+.ct-table td:first-child{text-align:center;}
+.ct-table tr.ct-selected td{background:rgba(80,160,255,0.08);}
+.ct-table tr:hover td{background:rgba(255,255,255,0.04);}
+.ct-table tr.ct-selected:hover td{background:rgba(80,160,255,0.12);}
+.ct-table tr:last-child td{border-bottom:none;}
+.ct-cb{width:15px;height:15px;cursor:pointer;accent-color:#cc0000;}
+.ct-select-all-cb{width:15px;height:15px;cursor:pointer;accent-color:#cc0000;}
+.ct-kod{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:6px;background:rgba(204,0,0,0.2);border:1px solid rgba(204,0,0,0.4);color:#ff8080;letter-spacing:0.08em;}
+.ct-title{font-size:12px;color:rgba(255,180,0,0.8);}
+.ct-name{font-weight:600;color:#fff;}
+.ct-email{color:rgba(80,200,255,0.85);font-size:12px;}
+.ct-empty{text-align:center;color:rgba(255,255,255,0.4);padding:32px;font-size:14px;}
+
 </style>
 </head>
 <body>
@@ -374,7 +390,6 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
       <button class="tab-btn" onclick="switchTab(6)">&#128196; Generate FBL</button>
       <button class="tab-btn" onclick="switchTab(7)">&#128197; Freighter Schedule</button>
       <button class="tab-btn" onclick="switchTab(8)">&#128222; Contacts</button>
-      <button class="tab-btn" onclick="switchTab(9)">&#9992; Airport Codes</button>
     </div>
 
     <div class="tab-panel active" id="tab0">
@@ -667,33 +682,6 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
       </div>
     </div>
 
-    <!-- TAB 9: Airport Codes -->
-    <div class="tab-panel" id="tab9">
-      <div class="ap-card">
-        <div class="ap-search-row">
-          <div class="field">
-            <label>Search</label>
-            <input type="text" id="apSearch" placeholder="Airport code (e.g. MAD)" maxlength="3"
-              style="width:200px;height:44px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:0 14px;font-size:15px;font-family:monospace;color:#fff;outline:none;text-transform:uppercase;letter-spacing:0.1em;"
-              oninput="this.value=this.value.toUpperCase();renderAirports()">
-          </div>
-
-        </div>
-        <div class="ap-count" id="apCount"></div>
-        <div class="ap-table-wrap">
-          <table class="ap-table">
-            <thead>
-              <tr>
-                <th>Code</th>
-                <th>Airport Name</th>
-                <th>Country</th>
-              </tr>
-            </thead>
-            <tbody id="apBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
 
   </div>
 </div>
@@ -719,14 +707,7 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
     </div>
     <div class="admin-status" id="adminContactsStatus"></div>
   </div>
-  <div class="admin-section">
-    <div class="admin-section-label">Upload Airport Codes</div>
-    <div class="admin-drop" onclick="document.getElementById('adminAirportsFile').click()">
-      📂 Upload Airport Excel (.xlsx)
-      <input type="file" id="adminAirportsFile" accept=".xlsx,.xls" onchange="adminUploadAirports(this)">
-    </div>
-    <div class="admin-status" id="adminAirportsStatus"></div>
-  </div>
+
   <div class="admin-section">
     <div class="admin-section-label">Update No Sale Routes</div>
     <div class="admin-drop" onclick="document.getElementById('nosaleFileInput').click()">
@@ -797,15 +778,6 @@ db.ref('contacts').on('value', (snap) => {
   if(val && Array.isArray(val)) {
     CONTACTS.length = 0;
     val.forEach(r => CONTACTS.push(r));
-  }
-});
-
-db.ref('airports').on('value', (snap) => {
-  const val = snap.val();
-  if(val && Array.isArray(val)) {
-    AIRPORTS.length = 0;
-    val.forEach(r => AIRPORTS.push(r));
-    if(typeof renderAirports === 'function') renderAirports();
   }
 });
 
@@ -881,9 +853,6 @@ window.fbSetCustomers = (data) => {
 };
 window.fbSetContacts = (data) => {
   db.ref('contacts').set(data);
-};
-window.fbSetAirports = (data) => {
-  db.ref('airports').set(data);
 };
 window.fbSetSchedule = (data) => {
   db.ref('schedule').set(data);
@@ -1132,7 +1101,6 @@ function switchTab(idx) {
   if(idx===6) updateFBLStats();
   if(idx===7) renderSchedule();
   if(idx===8) renderContacts();
-  if(idx===9) renderAirports();
 }
 
 // ── Admin ─────────────────────────────────────────────────────────────────
@@ -2024,31 +1992,6 @@ function ctDoCopy(text, btn, resetLabel) {
 }
 
 
-// ── Airport Codes ────────────────────────────────────────────────────────
-let AIRPORTS = [];
-
-
-
-
-function renderAirports() {
-  const search = (document.getElementById('apSearch').value||'').trim().toUpperCase();
-  const body = document.getElementById('apBody');
-  const countEl = document.getElementById('apCount');
-  const filtered = AIRPORTS.filter(r =>
-    !search || r.code.startsWith(search)
-  );
-  countEl.textContent = filtered.length + ' airport' + (filtered.length!==1?'s':'') + ' shown';
-  if(!filtered.length) {
-    body.innerHTML = '<tr><td colspan="3" class="ap-empty">No airports match.</td></tr>';
-    return;
-  }
-  body.innerHTML = filtered.map(r => `<tr>
-    <td style="font-weight:800;font-family:monospace;color:#fff;letter-spacing:0.1em">${r.code}</td>
-    <td style="color:rgba(255,255,255,0.85)">${r.name}</td>
-    <td class="ap-country">${r.country}</td>
-  </tr>`).join('');
-}
-
 
 // ── Admin Data Uploads ───────────────────────────────────────────────────
 function adminUploadContacts(input) {
@@ -2081,35 +2024,6 @@ function adminUploadContacts(input) {
   reader.readAsArrayBuffer(file);
 }
 
-function adminUploadAirports(input) {
-  const file = input.files[0]; if(!file) return;
-  const st = document.getElementById('adminAirportsStatus');
-  st.textContent = 'Reading...'; st.className = 'admin-status';
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const data = new Uint8Array(e.target.result);
-      const wb = XLSX.read(data, {type:'array'});
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const raw = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
-      const parsed = [];
-      for(let i=1;i<raw.length;i++) {
-        const r=raw[i]; if(!r[0]&&!r[2]) continue;
-        parsed.push({name:String(r[0]||'').trim(),country:String(r[1]||'').trim(),code:String(r[2]||'').trim()});
-      }
-      AIRPORTS.length=0; parsed.forEach(r=>AIRPORTS.push(r));
-      if(typeof window.fbSetAirports==='function') {
-        window.fbSetAirports(parsed);
-        st.textContent='✓ '+parsed.length+' airports uploaded to Firebase';
-      } else {
-        st.textContent='✓ '+parsed.length+' airports loaded (not synced)';
-      }
-      st.className='admin-status ok';
-      input.value='';
-    } catch(err) { st.textContent='Error: '+err.message; st.className='admin-status err'; }
-  };
-  reader.readAsArrayBuffer(file);
-}
 
 // ── Keyboard ──────────────────────────────────────────────────────────────
 document.addEventListener('keydown', e=>{
@@ -2131,7 +2045,7 @@ document.getElementById('destInput2').addEventListener('keydown',e=>{if(e.key===
 
 // ── Init ──────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
-  renderNosale();renderMCR();renderIATA();renderCustomers();renderSchedule();renderAirports();
+  renderNosale();renderMCR();renderIATA();renderCustomers();renderSchedule();
   // Set FBL default date to today (Toronto timezone)
   const today = new Date().toLocaleDateString('en-CA', {timeZone:'America/Toronto', year:'numeric', month:'2-digit', day:'2-digit'}).split('/').reverse().join('-');
   const fblDateEl = document.getElementById('fblDate');
