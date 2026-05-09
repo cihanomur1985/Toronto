@@ -2035,9 +2035,7 @@ function renderAirports() {
   const body = document.getElementById('apBody');
   const countEl = document.getElementById('apCount');
   const filtered = AIRPORTS.filter(r =>
-    !search || r.code.includes(search) ||
-    r.name.toUpperCase().includes(search) ||
-    r.country.toUpperCase().includes(search)
+    !search || r.code.startsWith(search)
   );
   countEl.textContent = filtered.length + ' airport' + (filtered.length!==1?'s':'') + ' shown';
   if(!filtered.length) {
