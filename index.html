@@ -673,8 +673,8 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
         <div class="ap-search-row">
           <div class="field">
             <label>Search</label>
-            <input type="text" id="apSearch" placeholder="Code, name, city or country..."
-              style="width:300px;height:44px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:0 14px;font-size:14px;font-family:Inter,sans-serif;color:#fff;outline:none;text-transform:uppercase;"
+            <input type="text" id="apSearch" placeholder="Airport code (e.g. MAD)" maxlength="3"
+              style="width:200px;height:44px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:0 14px;font-size:15px;font-family:monospace;color:#fff;outline:none;text-transform:uppercase;letter-spacing:0.1em;"
               oninput="this.value=this.value.toUpperCase();renderAirports()">
           </div>
 
