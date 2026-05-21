@@ -341,6 +341,30 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
 .ct-email{color:rgba(80,200,255,0.85);font-size:12px;}
 .ct-empty{text-align:center;color:rgba(255,255,255,0.4);padding:32px;font-size:14px;}
 
+
+/* Promo Tab + Badge */
+.promo-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px 28px;backdrop-filter:blur(10px);}
+.promo-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.08);}
+.promo-table{width:100%;border-collapse:collapse;font-size:13px;}
+.promo-table th{background:rgba(0,160,80,0.3);color:#fff;font-weight:700;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:12px 14px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.1);white-space:nowrap;}
+.promo-table th:first-child{text-align:left;}
+.promo-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.85);text-align:center;font-variant-numeric:tabular-nums;}
+.promo-table td:first-child{text-align:left;font-weight:800;color:#fff;font-family:monospace;letter-spacing:0.08em;}
+.promo-table tr:hover td{background:rgba(0,160,80,0.06);}
+.promo-table tr:last-child td{border-bottom:none;}
+/* Promo badge (like MCR but green) */
+.promo-badge-wrap{position:relative;display:inline-flex;align-items:center;}
+.promo-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(0,180,80,0.22),rgba(0,140,60,0.15));border:1.5px solid rgba(0,200,80,0.7);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#5dca8a;cursor:default;box-shadow:0 0 12px rgba(0,200,80,0.25);animation:promoPulse 2.5s ease-in-out infinite;}
+@keyframes promoPulse{0%,100%{box-shadow:0 0 10px rgba(0,200,80,0.25);}50%{box-shadow:0 0 22px rgba(0,200,80,0.55);}}
+.promo-badge:hover{background:linear-gradient(135deg,rgba(0,200,80,0.32),rgba(0,160,60,0.22));border-color:rgba(0,220,80,0.95);animation:none;}
+.promo-tooltip{display:none;position:absolute;top:calc(100% + 10px);left:0;z-index:999;min-width:360px;background:rgba(4,14,8,0.97);border:1px solid rgba(0,200,80,0.35);border-radius:12px;padding:16px 18px;box-shadow:0 16px 48px rgba(0,0,0,0.8),0 0 24px rgba(0,200,80,0.1);pointer-events:none;}
+.promo-badge-wrap:hover .promo-tooltip{display:block;}
+.promo-tooltip-title{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(0,220,80,0.8);margin-bottom:10px;}
+.promo-tooltip-table{width:100%;border-collapse:collapse;}
+.promo-tooltip-table th{font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.08);}
+.promo-tooltip-table th:first-child{text-align:left;}
+.promo-tooltip-table td{font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;color:#fff;padding:5px 8px;text-align:center;}
+.promo-tooltip-table td:first-child{text-align:left;font-size:11px;font-weight:400;color:rgba(255,255,255,0.4);}
 </style>
 </head>
 <body>
@@ -389,7 +413,8 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
       <button class="tab-btn" onclick="switchTab(5)">&#128101; Customer List</button>
       <button class="tab-btn" onclick="switchTab(6)">&#128196; Generate FBL</button>
       <button class="tab-btn" onclick="switchTab(7)">&#128197; Freighter Schedule</button>
-      <button class="tab-btn" onclick="switchTab(8)">&#128222; Contacts</button>
+      <button class="tab-btn" onclick="switchTab(8)">&#127381; Promo</button>
+      <button class="tab-btn" onclick="switchTab(9)">&#128222; Contacts</button>
     </div>
 
     <div class="tab-panel active" id="tab0">
@@ -648,8 +673,37 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
     </div>
 
 
-    <!-- TAB 8: Contacts -->
+    <!-- TAB 8: Promo -->
     <div class="tab-panel" id="tab8">
+      <div class="promo-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+          <div>
+            <div style="font-family:'Poppins',sans-serif;font-size:18px;font-weight:700;color:#5dca8a;">🎯 Promo Rates — May 2026</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;">Special promotional rates · CAD/kg</div>
+          </div>
+        </div>
+        <div class="promo-table-wrap">
+          <table class="promo-table">
+            <thead>
+              <tr>
+                <th>Dest</th>
+                <th>M<br><span style="font-size:9px;opacity:0.6;font-weight:400">0–22kg</span></th>
+                <th>N<br><span style="font-size:9px;opacity:0.6;font-weight:400">23–44kg</span></th>
+                <th>45<br><span style="font-size:9px;opacity:0.6;font-weight:400">45–99kg</span></th>
+                <th>100<br><span style="font-size:9px;opacity:0.6;font-weight:400">100–299kg</span></th>
+                <th>300<br><span style="font-size:9px;opacity:0.6;font-weight:400">300–499kg</span></th>
+                <th>500<br><span style="font-size:9px;opacity:0.6;font-weight:400">500–999kg</span></th>
+                <th>1000<br><span style="font-size:9px;opacity:0.6;font-weight:400">1000+kg</span></th>
+              </tr>
+            </thead>
+            <tbody id="promoBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 9: Contacts -->
+    <div class="tab-panel" id="tab9">
       <div class="ct-card">
         <div class="ct-search-row">
           <div class="field">
@@ -997,7 +1051,7 @@ function lookup() {
   if(!anyFound) {
     out.innerHTML=`<div class="no-result">Destination "<strong style="color:#fff">${dest}</strong>" not found.</div>`;
   } else {
-    out.innerHTML=`<div class="result-meta"><span class="dest-badge">${dest}</span><span class="badge badge-red">${kg} kg</span><span class="badge badge-gray">Column ${col} · ${COL_LABELS[col]}</span>${getMCRBox(dest)}</div>${groupsHtml}`;
+    out.innerHTML=`<div class="result-meta"><span class="dest-badge">${dest}</span><span class="badge badge-red">${kg} kg</span><span class="badge badge-gray">Column ${col} · ${COL_LABELS[col]}</span>${getMCRBox(dest)}${getPromoBox(dest)}</div>${groupsHtml}`;
   }
 }
 
@@ -1013,7 +1067,7 @@ function showFullSheet() {
   if(!row) { out.innerHTML=`<div class="no-table-result">Destination "${dest}" not found in ${product}.</div>`; return; }
   const colHeaders=COLS.map(c=>`<th class="col-header-main">${c}<br><span style="font-size:10px;opacity:0.65;font-weight:400">${COL_LABELS[c]}</span></th>`).join('');
   const cells=COLS.map(c=>{const v=parseVal(row[c]);return `<td>${isNaN(v)?'—':v.toFixed(2)}</td>`;}).join('');
-  out.innerHTML=`<div class="result-meta" style="margin-bottom:12px"><span class="dest-badge">${dest}</span><span class="badge badge-gray">${product}</span>${getMCRBox(dest)}</div><div class="rate-table-wrap"><table class="rate-table"><thead><tr><th>Dest</th>${colHeaders}</tr></thead><tbody><tr class="highlight-dest"><td>${dest}</td>${cells}</tr></tbody></table></div>`;
+  out.innerHTML=`<div class="result-meta" style="margin-bottom:12px"><span class="dest-badge">${dest}</span><span class="badge badge-gray">${product}</span>${getMCRBox(dest)}${getPromoBox(dest)}</div><div class="rate-table-wrap"><table class="rate-table"><thead><tr><th>Dest</th>${colHeaders}</tr></thead><tbody><tr class="highlight-dest"><td>${dest}</td>${cells}</tr></tbody></table></div>`;
 }
 
 // ── No Sale Routes ────────────────────────────────────────────────────────
@@ -1100,7 +1154,8 @@ function switchTab(idx) {
   if(idx===5) renderCustomers();
   if(idx===6) updateFBLStats();
   if(idx===7) renderSchedule();
-  if(idx===8) renderContacts();
+  if(idx===8) renderPromo();
+  if(idx===9) renderContacts();
 }
 
 // ── Admin ─────────────────────────────────────────────────────────────────
@@ -2025,6 +2080,47 @@ function adminUploadContacts(input) {
 }
 
 
+// ── Promo ────────────────────────────────────────────────────────────────
+const PROMO = [{"dest": "BKK", "M": 100, "N": 4.45, "45": 4, "100": 2.5, "300": 2.3, "500": 2.1, "1000": 2.05}, {"dest": "CAI", "M": 100, "N": 4.45, "45": 4, "100": 3.5, "300": 3.4, "500": 3.3, "1000": 3.2}, {"dest": "CAN", "M": 100, "N": 4.45, "45": 4, "100": 2, "300": 1.85, "500": 1.75, "1000": 1.65}, {"dest": "CGK", "M": 120, "N": 5.45, "45": 4.45, "100": 2.9, "300": 2.7, "500": 2.6, "1000": 2.5}, {"dest": "CGO", "M": 100, "N": 4.45, "45": 4, "100": 2, "300": 1.85, "500": 1.75, "1000": 1.65}, {"dest": "CMB", "M": 120, "N": 5.9, "45": 4.95, "100": 4, "300": 3.75, "500": 3.6, "1000": 3.4}, {"dest": "CTU", "M": 100, "N": 4.45, "45": 4, "100": 2, "300": 1.85, "500": 1.75, "1000": 1.65}, {"dest": "DPS", "M": 120, "N": 5.45, "45": 4.45, "100": 2.5, "300": 2.3, "500": 2.1, "1000": 1.9}, {"dest": "HAN", "M": 120, "N": 5.45, "45": 4.45, "100": 2.5, "300": 2.3, "500": 2.1, "1000": 2.05}, {"dest": "HKG", "M": 100, "N": 4.45, "45": 4, "100": 2, "300": 1.85, "500": 1.75, "1000": 1.5}, {"dest": "HKT", "M": 120, "N": 5.45, "45": 4.45, "100": 2.5, "300": 2.3, "500": 2.1, "1000": 1.9}, {"dest": "HND", "M": 130, "N": 6.9, "45": 5.9, "100": 2.4, "300": 2.2, "500": 2.1, "1000": 2.05}, {"dest": "ISB", "M": 100, "N": 4.45, "45": 4, "100": 2.75, "300": 2.5, "500": 2.25, "1000": 2}, {"dest": "KHI", "M": 120, "N": 5.45, "45": 4.45, "100": 2.75, "300": 2.5, "500": 2.25, "1000": 2}, {"dest": "KIX", "M": 130, "N": 6.9, "45": 5.9, "100": 2.7, "300": 2.6, "500": 2.45, "1000": 2.35}, {"dest": "KUL", "M": 120, "N": 5.45, "45": 4.45, "100": 3, "300": 2.8, "500": 2.6, "1000": 2.4}, {"dest": "MCT", "M": 120, "N": 5.9, "45": 5.45, "100": 4, "300": 3.65, "500": 3.4, "1000": 3}, {"dest": "MNL", "M": 120, "N": 5.45, "45": 5.2, "100": 5, "300": 3.8, "500": 3.6, "1000": 3.4}, {"dest": "NRT", "M": 130, "N": 6.9, "45": 5.9, "100": 2.7, "300": 2.6, "500": 2.45, "1000": 2.35}, {"dest": "PEK", "M": 120, "N": 5.9, "45": 4.45, "100": 2.1, "300": 1.95, "500": 1.85, "1000": 1.75}, {"dest": "PVG", "M": 100, "N": 4.45, "45": 4, "100": 2, "300": 1.85, "500": 1.75, "1000": 1.65}, {"dest": "SGN", "M": 100, "N": 4.45, "45": 4, "100": 3, "300": 2.95, "500": 2.9, "1000": 2.8}, {"dest": "SIN", "M": 125, "N": 5.75, "45": 5.05, "100": 3, "300": 2.8, "500": 2.6, "1000": 2.4}, {"dest": "SZX", "M": 100, "N": 4.45, "45": 4, "100": 2, "300": 1.85, "500": 1.75, "1000": 1.65}, {"dest": "TPE", "M": 100, "N": 4.45, "45": 4, "100": 3, "300": 2.75, "500": 2.5, "1000": 2.3}];
+const PROMO_DESTS = new Set(["BKK", "CAI", "CAN", "CGK", "CGO", "CMB", "CTU", "DPS", "HAN", "HKG", "HKT", "HND", "ISB", "KHI", "KIX", "KUL", "MCT", "MNL", "NRT", "PEK", "PVG", "SGN", "SIN", "SZX", "TPE"]);
+
+const COLS_PROMO = ['M','N','45','100','300','500','1000'];
+const COL_LABELS_PROMO = {M:'0–22 kg',N:'23–44 kg','45':'45–99 kg','100':'100–299 kg','300':'300–499 kg','500':'500–999 kg','1000':'1000+ kg'};
+
+function renderPromo() {
+  const body = document.getElementById('promoBody');
+  if(!body) return;
+  body.innerHTML = PROMO.map(r => {
+    const cells = COLS_PROMO.map(c => {
+      const v = r[c];
+      return `<td>${v !== null && v !== undefined ? parseFloat(v).toFixed(2) : '—'}</td>`;
+    }).join('');
+    return `<tr><td>${r.dest}</td>${cells}</tr>`;
+  }).join('');
+}
+
+function getPromoBox(dest) {
+  if(!PROMO_DESTS.has(dest)) return '';
+  const p = PROMO.find(r => r.dest === dest);
+  if(!p) return '';
+  const rows = COLS_PROMO.map(c => {
+    const v = p[c];
+    return `<td>${v !== null && v !== undefined ? parseFloat(v).toFixed(2) : '—'}</td>`;
+  }).join('');
+  return `<div class="promo-badge-wrap">
+    <div class="promo-badge"><span>🎯</span> Promo Available</div>
+    <div class="promo-tooltip">
+      <div class="promo-tooltip-title">🎯 Promo Rates — ${dest} (CAD/kg)</div>
+      <table class="promo-tooltip-table">
+        <thead><tr>
+          ${COLS_PROMO.map(c=>`<th>${c}</th>`).join('')}
+        </tr></thead>
+        <tbody><tr>${rows}</tr></tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
 // ── Keyboard ──────────────────────────────────────────────────────────────
 document.addEventListener('keydown', e=>{
   if(e.key==='Enter') {
@@ -2045,7 +2141,7 @@ document.getElementById('destInput2').addEventListener('keydown',e=>{if(e.key===
 
 // ── Init ──────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
-  renderNosale();renderMCR();renderIATA();renderCustomers();renderSchedule();
+  renderNosale();renderMCR();renderIATA();renderCustomers();renderSchedule();renderPromo();
   // Set FBL default date to today (Toronto timezone)
   const today = new Date().toLocaleDateString('en-CA', {timeZone:'America/Toronto', year:'numeric', month:'2-digit', day:'2-digit'}).split('/').reverse().join('-');
   const fblDateEl = document.getElementById('fblDate');
