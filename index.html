@@ -679,7 +679,7 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
           <div>
             <div style="font-family:'Poppins',sans-serif;font-size:18px;font-weight:700;color:#5dca8a;">🎯 Promo Rates — May 2026</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;">Special promotional rates · CAD/kg</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;">Special promotional rates · CAD/kg · Last updated: <span id="tsPromo">—</span></div>
           </div>
         </div>
         <div class="promo-table-wrap">
@@ -752,6 +752,14 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
       <input type="file" id="mcrFileInput" accept=".xlsx,.xls" onchange="importMCR(this)">
     </div>
     <div class="admin-status" id="mcrStatus"></div>
+  </div>
+  <div class="admin-section">
+    <div class="admin-section-label">Upload Promo Rates</div>
+    <div class="admin-drop" onclick="document.getElementById('adminPromoFile').click()">
+      📂 Upload Promo Excel (.xlsx)
+      <input type="file" id="adminPromoFile" accept=".xlsx,.xls" onchange="adminUploadPromo(this)">
+    </div>
+    <div class="admin-status" id="adminPromoStatus"></div>
   </div>
   <div class="admin-section">
     <div class="admin-section-label">Upload Contacts Data</div>
@@ -835,6 +843,22 @@ db.ref('contacts').on('value', (snap) => {
   }
 });
 
+db.ref('promo').on('value', (snap) => {
+  const val = snap.val();
+  if(val && Array.isArray(val)) {
+    PROMO.length = 0;
+    val.forEach(r => PROMO.push(r));
+    PROMO_DESTS.clear();
+    val.forEach(r => PROMO_DESTS.add(r.dest));
+    if(typeof renderPromo === 'function') renderPromo();
+  }
+});
+db.ref('ts_promo').on('value', (snap) => {
+  const val = snap.val();
+  const el = document.getElementById('tsPromo');
+  if(el && val) el.textContent = formatTS(val);
+});
+
 db.ref('schedule').on('value', (snap) => {
   const val = snap.val();
   if(val && Array.isArray(val)){
@@ -907,6 +931,10 @@ window.fbSetCustomers = (data) => {
 };
 window.fbSetContacts = (data) => {
   db.ref('contacts').set(data);
+};
+window.fbSetPromo = (data) => {
+  db.ref('promo').set(data);
+  db.ref('ts_promo').set(new Date().toISOString());
 };
 window.fbSetSchedule = (data) => {
   db.ref('schedule').set(data);
@@ -2049,6 +2077,45 @@ function ctDoCopy(text, btn, resetLabel) {
 
 
 // ── Admin Data Uploads ───────────────────────────────────────────────────
+function adminUploadPromo(input) {
+  const file = input.files[0]; if(!file) return;
+  const st = document.getElementById('adminPromoStatus');
+  st.textContent = 'Reading...'; st.style.color = 'rgba(255,255,255,0.4)';
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const raw = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+      const parsed = [];
+      for(let i=1;i<raw.length;i++) {
+        const r=raw[i]; if(!r[0]) continue;
+        parsed.push({
+          dest:String(r[0]).trim().toUpperCase(),
+          M:parseFloat(r[1])||null, N:parseFloat(r[2])||null,
+          '45':parseFloat(r[3])||null, '100':parseFloat(r[4])||null,
+          '300':parseFloat(r[5])||null, '500':parseFloat(r[6])||null,
+          '1000':parseFloat(r[7])||null
+        });
+      }
+      PROMO.length=0; parsed.forEach(r=>PROMO.push(r));
+      PROMO_DESTS.clear(); parsed.forEach(r=>PROMO_DESTS.add(r.dest));
+      renderPromo();
+      if(typeof window.fbSetPromo==='function') {
+        window.fbSetPromo(parsed);
+        st.textContent='✓ '+parsed.length+' destinations uploaded to Firebase';
+        st.style.color='#5dca8a';
+      }
+      input.value='';
+    } catch(err) {
+      st.textContent='Error: '+err.message;
+      st.style.color='#ff8080';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
 function adminUploadContacts(input) {
   const file = input.files[0]; if(!file) return;
   const st = document.getElementById('adminContactsStatus');
