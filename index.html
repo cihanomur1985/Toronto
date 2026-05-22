@@ -749,7 +749,7 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
     <div class="admin-section-label">Update MCR Rates</div>
     <div class="admin-drop" onclick="document.getElementById('mcrFileInput').click()">
       📂 Click to upload MCR Excel (.xlsx)
-      <input type="file" id="mcrFileInput" accept=".xlsx,.xls" onchange="importMCR(this)">
+      <input type="file" id="mcrFileInput" accept=".xlsx,.xls" style="display:none" onchange="importMCR(this)">
     </div>
     <div class="admin-status" id="mcrStatus"></div>
   </div>
@@ -757,7 +757,7 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
     <div class="admin-section-label">Upload Promo Rates</div>
     <div class="admin-drop" onclick="document.getElementById('adminPromoFile').click()">
       📂 Upload Promo Excel (.xlsx)
-      <input type="file" id="adminPromoFile" accept=".xlsx,.xls" onchange="adminUploadPromo(this)">
+      <input type="file" id="adminPromoFile" style="display:none" accept=".xlsx,.xls" onchange="adminUploadPromo(this)">
     </div>
     <div class="admin-status" id="adminPromoStatus"></div>
   </div>
@@ -765,7 +765,7 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
     <div class="admin-section-label">Upload Contacts Data</div>
     <div class="admin-drop" onclick="document.getElementById('adminContactsFile').click()">
       📂 Upload Contacts Excel (.xlsx)
-      <input type="file" id="adminContactsFile" accept=".xlsx,.xls" onchange="adminUploadContacts(this)">
+      <input type="file" id="adminContactsFile" style="display:none" accept=".xlsx,.xls" onchange="adminUploadContacts(this)">
     </div>
     <div class="admin-status" id="adminContactsStatus"></div>
   </div>
@@ -774,7 +774,7 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
     <div class="admin-section-label">Update No Sale Routes</div>
     <div class="admin-drop" onclick="document.getElementById('nosaleFileInput').click()">
       📂 Click to upload No Sale Excel (.xlsx)
-      <input type="file" id="nosaleFileInput" accept=".xlsx,.xls" onchange="importNosale(this)">
+      <input type="file" id="nosaleFileInput" style="display:none" accept=".xlsx,.xls" onchange="importNosale(this)">
     </div>
     <div class="admin-status" id="nosaleUploadStatus"></div>
   </div>
