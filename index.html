@@ -681,6 +681,11 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
             <div style="font-family:'Poppins',sans-serif;font-size:18px;font-weight:700;color:#5dca8a;">🎯 Promo List</div>
             <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;">Special promotional rates · CAD/kg · Last updated: <span id="tsPromo">—</span></div>
           </div>
+          <button onclick="exportPromoExcel()" style="height:40px;padding:0 20px;background:linear-gradient(135deg,rgba(0,160,80,0.25),rgba(0,120,60,0.15));border:1.5px solid rgba(0,200,80,0.5);border-radius:10px;color:#5dca8a;font-size:13px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.2s;letter-spacing:0.03em;display:flex;align-items:center;gap:8px;"
+            onmouseover="this.style.background='linear-gradient(135deg,rgba(0,180,80,0.35),rgba(0,140,60,0.25))';this.style.color='#fff'"
+            onmouseout="this.style.background='linear-gradient(135deg,rgba(0,160,80,0.25),rgba(0,120,60,0.15))';this.style.color='#5dca8a'">
+            📊 Export to Excel
+          </button>
         </div>
         <div class="promo-table-wrap">
           <table class="promo-table">
@@ -2186,6 +2191,147 @@ function getPromoBox(dest) {
       </table>
     </div>
   </div>`;
+}
+
+function exportPromoExcel() {
+  if(!PROMO || !PROMO.length) { alert('No promo data to export.'); return; }
+
+  const wb = XLSX.utils.book_new();
+  const cols = ['M','N','45','100','300','500','1000'];
+  const colLabels = ['M\n(0-22 kg)','N\n(23-44 kg)','45\n(45-99 kg)','100\n(100-299 kg)','300\n(300-499 kg)','500\n(500-999 kg)','1000\n(1000+ kg)'];
+
+  // Build data array
+  const aoa = [
+    ['TURKISH CARGO TORONTO', '', '', '', '', '', '', ''],
+    ['Promotional Rates', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['DESTINATION', ...colLabels],
+    ...PROMO.map(r => [
+      r.dest,
+      ...cols.map(c => (r[c] !== null && r[c] !== undefined) ? parseFloat(r[c]) : '')
+    ])
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+  // Column widths
+  ws['!cols'] = [
+    {wch:14},
+    {wch:12},{wch:12},{wch:12},{wch:14},{wch:14},{wch:14},{wch:14}
+  ];
+
+  // Row heights
+  ws['!rows'] = [
+    {hpt:36},{hpt:22},{hpt:8},{hpt:42},
+    ...PROMO.map(()=>({hpt:20}))
+  ];
+
+  // Style helpers
+  const titleStyle = {
+    font:{name:'Calibri',bold:true,sz:16,color:{rgb:'FFFFFF'}},
+    fill:{patternType:'solid',fgColor:{rgb:'1A6B3A'}},
+    alignment:{horizontal:'center',vertical:'center'}
+  };
+  const subtitleStyle = {
+    font:{name:'Calibri',bold:false,sz:11,color:{rgb:'CCFFDD'}},
+    fill:{patternType:'solid',fgColor:{rgb:'1A6B3A'}},
+    alignment:{horizontal:'center',vertical:'center'}
+  };
+  const headerStyle = {
+    font:{name:'Calibri',bold:true,sz:10,color:{rgb:'FFFFFF'}},
+    fill:{patternType:'solid',fgColor:{rgb:'0D4F2A'}},
+    alignment:{horizontal:'center',vertical:'center',wrapText:true},
+    border:{
+      top:{style:'thin',color:{rgb:'00C853'}},
+      bottom:{style:'thin',color:{rgb:'00C853'}},
+      left:{style:'thin',color:{rgb:'00C853'}},
+      right:{style:'thin',color:{rgb:'00C853'}}
+    }
+  };
+  const destStyle = {
+    font:{name:'Calibri',bold:true,sz:11,color:{rgb:'FFFFFF'}},
+    fill:{patternType:'solid',fgColor:{rgb:'1A3A2A'}},
+    alignment:{horizontal:'center',vertical:'center'},
+    border:{
+      top:{style:'thin',color:{rgb:'2D6B3A'}},
+      bottom:{style:'thin',color:{rgb:'2D6B3A'}},
+      left:{style:'thin',color:{rgb:'2D6B3A'}},
+      right:{style:'thin',color:{rgb:'2D6B3A'}}
+    }
+  };
+  const rateStyle = {
+    font:{name:'Calibri',sz:11,color:{rgb:'E8F5E9'}},
+    fill:{patternType:'solid',fgColor:{rgb:'0A2A15'}},
+    alignment:{horizontal:'center',vertical:'center'},
+    numFmt:'0.00',
+    border:{
+      top:{style:'thin',color:{rgb:'1E4D2B'}},
+      bottom:{style:'thin',color:{rgb:'1E4D2B'}},
+      left:{style:'thin',color:{rgb:'1E4D2B'}},
+      right:{style:'thin',color:{rgb:'1E4D2B'}}
+    }
+  };
+  const rateAltStyle = {
+    font:{name:'Calibri',sz:11,color:{rgb:'E8F5E9'}},
+    fill:{patternType:'solid',fgColor:{rgb:'0D3320'}},
+    alignment:{horizontal:'center',vertical:'center'},
+    numFmt:'0.00',
+    border:{
+      top:{style:'thin',color:{rgb:'1E4D2B'}},
+      bottom:{style:'thin',color:{rgb:'1E4D2B'}},
+      left:{style:'thin',color:{rgb:'1E4D2B'}},
+      right:{style:'thin',color:{rgb:'1E4D2B'}}
+    }
+  };
+
+  const encode = XLSX.utils.encode_cell;
+
+  // Apply title (row 0, merged A1:H1)
+  ws[encode({r:0,c:0})].s = titleStyle;
+  for(let c=1;c<8;c++) {
+    const ref = encode({r:0,c});
+    if(!ws[ref]) ws[ref] = {v:'',t:'s'};
+    ws[ref].s = titleStyle;
+  }
+
+  // Apply subtitle (row 1, merged A2:H2)
+  ws[encode({r:1,c:0})].s = subtitleStyle;
+  for(let c=1;c<8;c++) {
+    const ref = encode({r:1,c});
+    if(!ws[ref]) ws[ref] = {v:'',t:'s'};
+    ws[ref].s = subtitleStyle;
+  }
+
+  // Apply header row (row 3)
+  for(let c=0;c<8;c++) {
+    const ref = encode({r:3,c});
+    if(ws[ref]) ws[ref].s = headerStyle;
+  }
+
+  // Apply data rows
+  for(let r=0;r<PROMO.length;r++) {
+    const rowIdx = r + 4;
+    const isAlt = r % 2 === 1;
+    // Destination cell
+    const destRef = encode({r:rowIdx,c:0});
+    if(ws[destRef]) ws[destRef].s = destStyle;
+    // Rate cells
+    for(let c=1;c<8;c++) {
+      const ref = encode({r:rowIdx,c});
+      if(ws[ref]) ws[ref].s = isAlt ? rateAltStyle : rateStyle;
+    }
+  }
+
+  // Merges for title rows
+  ws['!merges'] = [
+    {s:{r:0,c:0},e:{r:0,c:7}},
+    {s:{r:1,c:0},e:{r:1,c:7}}
+  ];
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Promo Rates');
+
+  const date = new Date().toLocaleDateString('en-CA', {timeZone:'America/Toronto'});
+  XLSX.writeFile(wb, 'Promo_Rates_' + date + '.xlsx');
 }
 
 // ── Keyboard ──────────────────────────────────────────────────────────────
