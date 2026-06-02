@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
@@ -2193,146 +2194,121 @@ function getPromoBox(dest) {
   </div>`;
 }
 
-function exportPromoExcel() {
+async function exportPromoExcel() {
   if(!PROMO || !PROMO.length) { alert('No promo data to export.'); return; }
 
-  const wb = XLSX.utils.book_new();
-  const cols = ['M','N','45','100','300','500','1000'];
-  const colLabels = ['M\n(0-22 kg)','N\n(23-44 kg)','45\n(45-99 kg)','100\n(100-299 kg)','300\n(300-499 kg)','500\n(500-999 kg)','1000\n(1000+ kg)'];
-
-  // Build data array
-  const aoa = [
-    ['TURKISH CARGO TORONTO', '', '', '', '', '', '', ''],
-    ['Promotional Rates', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', ''],
-    ['DESTINATION', ...colLabels],
-    ...PROMO.map(r => [
-      r.dest,
-      ...cols.map(c => (r[c] !== null && r[c] !== undefined) ? parseFloat(r[c]) : '')
-    ])
-  ];
-
-  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = 'Turkish Cargo Toronto';
+  const ws = workbook.addWorksheet('Promo Rates', {
+    views: [{showGridLines: false}],
+    pageSetup: {paperSize: 9, orientation: 'landscape', fitToPage: true}
+  });
 
   // Column widths
-  ws['!cols'] = [
-    {wch:14},
-    {wch:12},{wch:12},{wch:12},{wch:14},{wch:14},{wch:14},{wch:14}
+  ws.columns = [
+    {width:14}, {width:11}, {width:11}, {width:11},
+    {width:13}, {width:13}, {width:13}, {width:13}
   ];
 
-  // Row heights
-  ws['!rows'] = [
-    {hpt:36},{hpt:22},{hpt:8},{hpt:42},
-    ...PROMO.map(()=>({hpt:20}))
-  ];
+  // ── Row 1: Main title ──────────────────────────────────────────────────
+  ws.mergeCells('A1:H1');
+  const titleCell = ws.getCell('A1');
+  titleCell.value = 'TURKISH CARGO TORONTO';
+  titleCell.font = {name:'Calibri', bold:true, size:16, color:{argb:'FFFFFFFF'}};
+  titleCell.fill = {type:'pattern', pattern:'solid', fgColor:{argb:'FF0A3D1F'}};
+  titleCell.alignment = {horizontal:'center', vertical:'middle'};
+  ws.getRow(1).height = 38;
 
-  // Style helpers
-  const titleStyle = {
-    font:{name:'Calibri',bold:true,sz:16,color:{rgb:'FFFFFF'}},
-    fill:{patternType:'solid',fgColor:{rgb:'1A6B3A'}},
-    alignment:{horizontal:'center',vertical:'center'}
-  };
-  const subtitleStyle = {
-    font:{name:'Calibri',bold:false,sz:11,color:{rgb:'CCFFDD'}},
-    fill:{patternType:'solid',fgColor:{rgb:'1A6B3A'}},
-    alignment:{horizontal:'center',vertical:'center'}
-  };
-  const headerStyle = {
-    font:{name:'Calibri',bold:true,sz:10,color:{rgb:'FFFFFF'}},
-    fill:{patternType:'solid',fgColor:{rgb:'0D4F2A'}},
-    alignment:{horizontal:'center',vertical:'center',wrapText:true},
-    border:{
-      top:{style:'thin',color:{rgb:'00C853'}},
-      bottom:{style:'thin',color:{rgb:'00C853'}},
-      left:{style:'thin',color:{rgb:'00C853'}},
-      right:{style:'thin',color:{rgb:'00C853'}}
-    }
-  };
-  const destStyle = {
-    font:{name:'Calibri',bold:true,sz:11,color:{rgb:'FFFFFF'}},
-    fill:{patternType:'solid',fgColor:{rgb:'1A3A2A'}},
-    alignment:{horizontal:'center',vertical:'center'},
-    border:{
-      top:{style:'thin',color:{rgb:'2D6B3A'}},
-      bottom:{style:'thin',color:{rgb:'2D6B3A'}},
-      left:{style:'thin',color:{rgb:'2D6B3A'}},
-      right:{style:'thin',color:{rgb:'2D6B3A'}}
-    }
-  };
-  const rateStyle = {
-    font:{name:'Calibri',sz:11,color:{rgb:'E8F5E9'}},
-    fill:{patternType:'solid',fgColor:{rgb:'0A2A15'}},
-    alignment:{horizontal:'center',vertical:'center'},
-    numFmt:'0.00',
-    border:{
-      top:{style:'thin',color:{rgb:'1E4D2B'}},
-      bottom:{style:'thin',color:{rgb:'1E4D2B'}},
-      left:{style:'thin',color:{rgb:'1E4D2B'}},
-      right:{style:'thin',color:{rgb:'1E4D2B'}}
-    }
-  };
-  const rateAltStyle = {
-    font:{name:'Calibri',sz:11,color:{rgb:'E8F5E9'}},
-    fill:{patternType:'solid',fgColor:{rgb:'0D3320'}},
-    alignment:{horizontal:'center',vertical:'center'},
-    numFmt:'0.00',
-    border:{
-      top:{style:'thin',color:{rgb:'1E4D2B'}},
-      bottom:{style:'thin',color:{rgb:'1E4D2B'}},
-      left:{style:'thin',color:{rgb:'1E4D2B'}},
-      right:{style:'thin',color:{rgb:'1E4D2B'}}
-    }
-  };
+  // ── Row 2: Subtitle ───────────────────────────────────────────────────
+  ws.mergeCells('A2:H2');
+  const subCell = ws.getCell('A2');
+  subCell.value = '🎯  Promotional Rates  ·  CAD / kg';
+  subCell.font = {name:'Calibri', bold:false, size:11, color:{argb:'FF88DDAA'}};
+  subCell.fill = {type:'pattern', pattern:'solid', fgColor:{argb:'FF0A3D1F'}};
+  subCell.alignment = {horizontal:'center', vertical:'middle'};
+  ws.getRow(2).height = 22;
 
-  const encode = XLSX.utils.encode_cell;
+  // ── Row 3: Spacer ─────────────────────────────────────────────────────
+  ws.mergeCells('A3:H3');
+  ws.getCell('A3').fill = {type:'pattern', pattern:'solid', fgColor:{argb:'FF0A3D1F'}};
+  ws.getRow(3).height = 6;
 
-  // Apply title (row 0, merged A1:H1)
-  ws[encode({r:0,c:0})].s = titleStyle;
-  for(let c=1;c<8;c++) {
-    const ref = encode({r:0,c});
-    if(!ws[ref]) ws[ref] = {v:'',t:'s'};
-    ws[ref].s = titleStyle;
-  }
+  // ── Row 4: Column headers ─────────────────────────────────────────────
+  const headers = ['DESTINATION','M\n0–22 kg','N\n23–44 kg','45\n45–99 kg','100\n100–299 kg','300\n300–499 kg','500\n500–999 kg','1000\n1000+ kg'];
+  const headerRow = ws.getRow(4);
+  headerRow.height = 44;
+  headers.forEach((h, i) => {
+    const cell = headerRow.getCell(i+1);
+    cell.value = h;
+    cell.font = {name:'Calibri', bold:true, size:10, color:{argb:'FFFFFFFF'}};
+    cell.fill = {type:'pattern', pattern:'solid', fgColor:{argb:'FF0D5C2E'}};
+    cell.alignment = {horizontal:'center', vertical:'middle', wrapText:true};
+    cell.border = {
+      top:    {style:'thin', color:{argb:'FF1A9950'}},
+      bottom: {style:'medium', color:{argb:'FF1A9950'}},
+      left:   {style:'thin', color:{argb:'FF1A9950'}},
+      right:  {style:'thin', color:{argb:'FF1A9950'}}
+    };
+  });
 
-  // Apply subtitle (row 1, merged A2:H2)
-  ws[encode({r:1,c:0})].s = subtitleStyle;
-  for(let c=1;c<8;c++) {
-    const ref = encode({r:1,c});
-    if(!ws[ref]) ws[ref] = {v:'',t:'s'};
-    ws[ref].s = subtitleStyle;
-  }
+  // ── Data rows ─────────────────────────────────────────────────────────
+  const cols = ['M','N','45','100','300','500','1000'];
+  const evenBg  = 'FF0B2E18';
+  const oddBg   = 'FF0F3D21';
+  const destEven = 'FF0D4020';
+  const destOdd  = 'FF0F4D26';
 
-  // Apply header row (row 3)
-  for(let c=0;c<8;c++) {
-    const ref = encode({r:3,c});
-    if(ws[ref]) ws[ref].s = headerStyle;
-  }
+  PROMO.forEach((r, idx) => {
+    const rowNum = idx + 5;
+    const row = ws.getRow(rowNum);
+    row.height = 20;
+    const isOdd = idx % 2 === 1;
+    const bg    = isOdd ? oddBg   : evenBg;
+    const dBg   = isOdd ? destOdd : destEven;
+    const bdr = {
+      top:    {style:'thin', color:{argb:'FF194D28'}},
+      bottom: {style:'thin', color:{argb:'FF194D28'}},
+      left:   {style:'thin', color:{argb:'FF194D28'}},
+      right:  {style:'thin', color:{argb:'FF194D28'}}
+    };
 
-  // Apply data rows
-  for(let r=0;r<PROMO.length;r++) {
-    const rowIdx = r + 4;
-    const isAlt = r % 2 === 1;
-    // Destination cell
-    const destRef = encode({r:rowIdx,c:0});
-    if(ws[destRef]) ws[destRef].s = destStyle;
-    // Rate cells
-    for(let c=1;c<8;c++) {
-      const ref = encode({r:rowIdx,c});
-      if(ws[ref]) ws[ref].s = isAlt ? rateAltStyle : rateStyle;
-    }
-  }
+    // Destination
+    const dc = row.getCell(1);
+    dc.value = r.dest;
+    dc.font  = {name:'Calibri', bold:true, size:11, color:{argb:'FF00E676'}};
+    dc.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:dBg}};
+    dc.alignment = {horizontal:'center', vertical:'middle'};
+    dc.border = bdr;
 
-  // Merges for title rows
-  ws['!merges'] = [
-    {s:{r:0,c:0},e:{r:0,c:7}},
-    {s:{r:1,c:0},e:{r:1,c:7}}
-  ];
+    // Rates
+    cols.forEach((c, ci) => {
+      const cell = row.getCell(ci + 2);
+      const v = r[c];
+      cell.value = (v !== null && v !== undefined && v !== '') ? parseFloat(v) : null;
+      cell.numFmt = '0.00';
+      cell.font   = {name:'Calibri', size:11, color:{argb:'FFD4F5E0'}};
+      cell.fill   = {type:'pattern', pattern:'solid', fgColor:{argb:bg}};
+      cell.alignment = {horizontal:'center', vertical:'middle'};
+      cell.border = bdr;
+    });
+  });
 
-  XLSX.utils.book_append_sheet(wb, ws, 'Promo Rates');
+  // ── Bottom border row ─────────────────────────────────────────────────
+  const lastRow = ws.getRow(PROMO.length + 5);
+  lastRow.height = 4;
+  ws.mergeCells(`A${PROMO.length+5}:H${PROMO.length+5}`);
+  ws.getCell(`A${PROMO.length+5}`).fill = {type:'pattern', pattern:'solid', fgColor:{argb:'FF0A3D1F'}};
 
+  // ── Download ──────────────────────────────────────────────────────────
+  const buf = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buf], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
   const date = new Date().toLocaleDateString('en-CA', {timeZone:'America/Toronto'});
-  XLSX.writeFile(wb, 'Promo_Rates_' + date + '.xlsx');
+  a.href = url; a.download = 'Promo_Rates_' + date + '.xlsx'; a.click();
+  URL.revokeObjectURL(url);
 }
+
 
 // ── Keyboard ──────────────────────────────────────────────────────────────
 document.addEventListener('keydown', e=>{
