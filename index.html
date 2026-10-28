@@ -366,6 +366,35 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
 .promo-tooltip-table td{font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;color:#fff;padding:5px 8px;text-align:center;}
 .promo-tooltip-table td:first-child{text-align:left;font-size:11px;font-weight:400;color:rgba(255,255,255,0.4);}
 </style>
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  (function(){
+    emailjs.init({ publicKey: 'n3yp2bsEAetTVodck' });
+  })();
+
+  const EMAILJS_SERVICE_ID = 'service_3f03bzk';
+  const EMAILJS_TEMPLATE_ID = 'template_hswv7gd';
+  const NOTIFY_EMAIL = 'hasan.koc@ansgsa.com';
+
+  function sendUpdateNotification(updateType, updatedBy) {
+    const now = new Date().toLocaleString('en-CA', {
+      year:'numeric', month:'short', day:'numeric',
+      hour:'2-digit', minute:'2-digit',
+      timeZoneName:'short', timeZone:'America/Toronto'
+    });
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email: NOTIFY_EMAIL,
+      update_type: updateType,
+      updated_by: updatedBy || 'Admin',
+      update_time: now
+    }).then(() => {
+      console.log('[EmailJS] Notification sent:', updateType);
+    }).catch((err) => {
+      console.warn('[EmailJS] Failed to send notification:', err);
+    });
+  }
+</script>
 </head>
 <body>
 
@@ -921,29 +950,36 @@ db.ref('mcr').on('value', (snap) => {
 window.fbSetUSDCAD = (val) => {
   db.ref('usdcad').set(val);
   db.ref('ts_usdcad').set(new Date().toISOString());
+  sendUpdateNotification('USD/CAD Exchange Rate', currentUser);
 };
 window.fbSetMCR = (data) => {
   db.ref('mcr').set(data);
   db.ref('ts_mcr').set(new Date().toISOString());
+  sendUpdateNotification('MCR Rates', currentUser);
 };
 window.fbSetNosale = (data) => {
   db.ref('nosale').set(data);
   db.ref('ts_nosale').set(new Date().toISOString());
+  sendUpdateNotification('No Sale Routes', currentUser);
 };
 window.fbSetCustomers = (data) => {
   db.ref('customers').set(data);
   db.ref('ts_customers').set(new Date().toISOString());
+  sendUpdateNotification('Customer List', currentUser);
 };
 window.fbSetContacts = (data) => {
   db.ref('contacts').set(data);
+  sendUpdateNotification('Contacts Data', currentUser);
 };
 window.fbSetPromo = (data) => {
   db.ref('promo').set(data);
   db.ref('ts_promo').set(new Date().toISOString());
+  sendUpdateNotification('Promo Rates', currentUser);
 };
 window.fbSetSchedule = (data) => {
   db.ref('schedule').set(data);
   db.ref('ts_schedule').set(new Date().toISOString());
+  sendUpdateNotification('Freighter Schedule', currentUser);
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────
