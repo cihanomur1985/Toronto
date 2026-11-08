@@ -2475,10 +2475,11 @@ function quoteCopyForEmail(){
     ['NOTE',quoteVal('quoteNote')],
     ['OFFERED RATE',rate?rate+' CAD/kg':'']
   ];
-  const tr=rows.map((r,i)=>'<tr><td style="padding:8px 14px;border:1px solid #d0d0d0;background:#f3f3f3;font-weight:bold;font-size:12px;color:#555;width:150px;">'+r[0]+'</td><td style="padding:8px 14px;border:1px solid #d0d0d0;'+(i===0||i===4?'font-weight:bold;':'')+'">'+quoteEsc(r[1])+'</td></tr>').join('');
-  const html='<div style="font-family:Arial,sans-serif;max-width:620px;">'
-    +'<div style="text-align:center;border-bottom:3px solid #c0392b;padding-bottom:10px;margin-bottom:12px;"><img src="'+QUOTE_LOGO_URL+'" alt="Turkish Cargo" height="120" style="height:120px;"></div>'
-    +'<table style="width:100%;border-collapse:collapse;font-size:13px;font-family:Arial,sans-serif;">'+tr+'</table></div>';
+  const tr=rows.map((r,i)=>'<tr><td width="150" bgcolor="#F2F2F2" style="width:150px;border:1px solid #BFBFBF;padding:7px 12px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:#555555;white-space:nowrap;">'+r[0]+'</td><td width="370" style="width:370px;border:1px solid #BFBFBF;padding:7px 12px;font-family:Arial,sans-serif;font-size:13px;'+(i===0||i===4?'font-weight:bold;':'font-weight:normal;')+'">'+quoteEsc(r[1])+'</td></tr>').join('');
+  const html='<table width="520" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:520px;">'
+    +'<tr><td colspan="2" align="center" style="padding:10px 0 12px 0;border-bottom:3px solid #C0392B;text-align:center;"><img src="'+QUOTE_LOGO_URL+'" alt="Turkish Cargo" width="260" style="width:260px;display:block;margin:0 auto;"></td></tr>'
+    +'<tr><td colspan="2" height="8" style="height:8px;font-size:1px;line-height:1px;">&nbsp;</td></tr>'
+    +tr+'</table>';
   const msg=document.getElementById('quoteCopyMsg');
   const ok=t=>{ msg.textContent=t; msg.style.opacity='1'; setTimeout(()=>{msg.style.opacity='0';},3000); };
   const plain=rows.map(r=>r[0]+'\t'+r[1]).join('\n');
