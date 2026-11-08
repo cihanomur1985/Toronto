@@ -2397,7 +2397,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 // ── Quote Tab ─────────────────────────────────────────────────────────────
 const QUOTE_SHEETS = {'TK Smart':'TKSMART','TK Premium':'TKPREMIUM','TK Urgent':'TKURGENT','PER':'PER','DGR':'DGR'};
-const QUOTE_LOGO_URL = 'https://cihanomur1985.github.io/Toronto/tc-logo.png';
+const QUOTE_LOGO_URL = 'https://cihanomur1985.github.io/Toronto/tc-logo-banner.png';
 
 function quoteVal(id){ const el=document.getElementById(id); return el?(el.value||'').trim():''; }
 function quoteProductName(){ const p=quoteVal('quoteProduct'); return p==='custom'?quoteVal('quoteProductCustom'):p; }
@@ -2477,7 +2477,7 @@ function quoteCopyForEmail(){
   ];
   const tr=rows.map((r,i)=>'<tr><td width="150" bgcolor="#F2F2F2" style="width:150px;border:1px solid #BFBFBF;padding:7px 12px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:#555555;white-space:nowrap;">'+r[0]+'</td><td width="370" style="width:370px;border:1px solid #BFBFBF;padding:7px 12px;font-family:Arial,sans-serif;font-size:13px;'+(i===0||i===4?'font-weight:bold;':'font-weight:normal;')+'">'+quoteEsc(r[1])+'</td></tr>').join('');
   const html='<table width="520" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:520px;">'
-    +'<tr><td colspan="2" align="center" bgcolor="#FFFFFF" style="border:1px solid #BFBFBF;border-bottom:3px solid #C0392B;padding:14px 0;text-align:center;"><div align="center" style="text-align:center;"><img src="'+QUOTE_LOGO_URL+'" alt="Turkish Cargo" width="240" style="width:240px;"></div></td></tr>'
+    +'<tr><td colspan="2" style="border:1px solid #BFBFBF;border-bottom:3px solid #C0392B;padding:0;line-height:0;font-size:0;"><img src="'+QUOTE_LOGO_URL+'" alt="Turkish Cargo" width="518" height="170" style="display:block;width:518px;height:170px;"></td></tr>'
     +tr+'</table>';
   const msg=document.getElementById('quoteCopyMsg');
   const ok=t=>{ msg.textContent=t; msg.style.opacity='1'; setTimeout(()=>{msg.style.opacity='0';},3000); };
