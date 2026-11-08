@@ -377,6 +377,8 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
   const EMAILJS_TEMPLATE_ID = 'template_hswv7gd';
   const NOTIFY_EMAIL = 'hasan.koc@ansgsa.com';
 
+  const PORTAL_URL = 'https://cihanomur1985.github.io/Toronto/';
+
   function sendUpdateNotification(updateType, updatedBy) {
     const now = new Date().toLocaleString('en-CA', {
       year:'numeric', month:'short', day:'numeric',
@@ -387,7 +389,9 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
       to_email: NOTIFY_EMAIL,
       update_type: updateType,
       updated_by: updatedBy || 'Admin',
-      update_time: now
+      update_time: now,
+      portal_url: PORTAL_URL,
+      portal_link_text: 'Check it out via the link below — Turkish Cargo Toronto Portal'
     }).then(() => {
       console.log('[EmailJS] Notification sent:', updateType);
     }).catch((err) => {
@@ -444,6 +448,7 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
       <button class="tab-btn" onclick="switchTab(7)">&#128197; Freighter Schedule</button>
       <button class="tab-btn" onclick="switchTab(8)">&#127381; Promo</button>
       <button class="tab-btn" onclick="switchTab(9)">&#128222; Contacts</button>
+      <button class="tab-btn" onclick="switchTab(10)">&#128196; Quote</button>
     </div>
 
     <div class="tab-panel active" id="tab0">
@@ -770,6 +775,64 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
       </div>
     </div>
 
+    <div class="tab-panel" id="tab10">
+      <div style="max-width:900px;margin:0 auto;padding:16px;">
+        <!-- Logo Header -->
+        <div style="text-align:center;margin-bottom:18px;">
+          <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIGlkPSJrYXRtYW5fMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNTk1LjI4IDQyMC45NSI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOm5vbmU7fS5jbHMtMntmaWxsOiNjZTE4MWU7fS5jbHMtM3tmaWxsOiNmZmZmZmY7fS5jbHMtNHtmaWxsOiNmZmY7fTwvc3R5bGU+PC9kZWZzPjxyZWN0IGNsYXNzPSJjbHMtMSIgeD0iLjg5IiB5PSIwIiB3aWR0aD0iNTk0LjM4IiBoZWlnaHQ9IjQyMC45NCIvPjxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTIwMi41MywxNzMuNTVjMTguNjcsMS45NCwzMy4yNCwxNy43MiwzMy4yNCwzNi45MSwwLDIwLjUtMTYuNjEsMzcuMTMtMzcuMTEsMzcuMTQtMjAuNSwwLTM3LjEzLTE2LjYxLTM3LjE0LTM3LjExLDAtMjAuNSwxNi42MS0zNy4xMywzNy4xMS0zNy4xNCwxLjMxLDAsMi42MS4wNywzLjkuMlpNMjA0LjQ0LDI0NWMxOS4wNy0zLjIsMzEuOTQtMjEuMjYsMjguNzMtNDAuMzMtMi42Ny0xNS44Ny0xNS42MS0yNy40NC0zMC44Ni0yOS4wMy0zLjA4LS4zMi02LjI2LS4yNC05LjQ3LjMtMy44LjY0LTcuMzUsMS44Ny0xMC41OCwzLjU5LDE2LjgxLDUuNywyNS44NSwxNC4zNywyNi40OCwyMy4yNS4zMSw1LjQ4LTIuMjQsOS40NS01LjU5LDEyLjY4bDIzLjc3LTEuNjZjLjY3LS4wNS44OC43NC4wNy45N2wtNTYuNywxNi4yNmM1Ljc3LDcuOTUsMTQuNzQsMTMuMjQsMjQuNjksMTQuMjgsMy4wOC4zMiw2LjI2LjI0LDkuNDctLjNaTTE4OC44NCwyMTEuMjljMy4xMS0xMS42OC0uNDQtMjMuOTMtOC45Mi0zMC40Mi0xMS41Niw3LjMxLTE4LjIyLDIxLjA3LTE1LjgxLDM1LjQuNzksNC43NCwyLjUxLDkuMDksNC45MywxMi45MSw5LjA0LTIuNTIsMTYuOTgtNy4yOCwxOS44MS0xNy45WiIvPjxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTIzMy4xNywyMDQuNjdjMy4yMSwxOS4wNy05LjY2LDM3LjEzLTI4LjczLDQwLjMzLTMuMjEuNTQtNi4zOS42Mi05LjQ3LjMtOS45NS0xLjA0LTE4LjkyLTYuMzMtMjQuNjktMTQuMjhsNTYuNy0xNi4yNmMuODEtLjIzLjYtMS4wMi0uMDctLjk3bC0yMy43NywxLjY2YzMuMzUtMy4yMyw1LjktNy4yLDUuNTktMTIuNjgtLjYzLTguODgtOS42Ni0xNy41NS0yNi40OC0yMy4yNSwzLjIzLTEuNzEsNi43OC0yLjk1LDEwLjU4LTMuNTksMy4yMS0uNTQsNi4zOS0uNjIsOS40Ny0uMywxNS4yNiwxLjYsMjguMiwxMy4xNiwzMC44NiwyOS4wM1pNMTY0LjExLDIxNi4yOGMuNzksNC43NCwyLjUxLDkuMDksNC45MywxMi45MSw5LjA0LTIuNTIsMTYuOTgtNy4yOCwxOS44MS0xNy45LDMuMTEtMTEuNjgtLjQ0LTIzLjkzLTguOTItMzAuNDItMTEuNTYsNy4zMS0xOC4yMiwyMS4wNy0xNS44MSwzNS40WiIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtMyIgcG9pbnRzPSI0MjcuODggMjA2LjA2IDQyNy44OCAxOTMuODUgNDE1LjY0IDE5My44NSA0MTUuNjQgMjA2LjA2IDQwOC45MyAyMDYuMDYgNDA4LjkzIDE3Ni45OCA0MTUuNjQgMTc2Ljk4IDQxNS42NCAxODguNTcgNDI3Ljg4IDE4OC41NyA0MjcuODggMTc2Ljk4IDQzNC42NSAxNzYuOTggNDM0LjY1IDIwNi4wNiA0MjcuODggMjA2LjA2Ii8+PHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMjgzLjEsMTc2Ljk4djE4LjJjMCwyLjAxLjMsMy43NS44OCw1LjE3LjU4LDEuNCwxLjQyLDIuNTcsMi41LDMuNDcsMS4wOS45LDIuNDEsMS41NywzLjkxLDEuOTksMS41Mi40MiwzLjI1LjY0LDUuMTIuNjRzMy41OC0uMjEsNS4wNy0uNjNjMS40Ny0uNDEsMi43Mi0xLjA4LDMuNzMtMS45OCwxLS45LDEuNzktMi4wNywyLjM0LTMuNDcuNTUtMS40MS44My0zLjE1LjgzLTUuMTh2LTE4LjJoLTYuMjl2MTguMDFjMCwxLjgzLS40NiwzLjMyLTEuMzUsNC40LS45MiwxLjExLTIuMzgsMS42Ny00LjM0LDEuNjdzLTMuMzctLjU2LTQuMzEtMS42N2MtLjkyLTEuMDgtMS4zOC0yLjU3LTEuMzgtNC40MXYtMTguMDFoLTYuNzJaIi8+PHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMjYzLjcyLDIwNi4wNnYtMjMuNjVoLTcuOXYtNS40M2gyMi41N3YyLjZjMCwxLjU2LTEuMjcsMi44My0yLjgyLDIuODNoLTUuMTJ2MjMuNjVoLTYuNzJaIi8+PHJlY3QgY2xhc3M9ImNscy0zIiB4PSIzNzEuNyIgeT0iMTc2Ljk4IiB3aWR0aD0iNi43MiIgaGVpZ2h0PSIyOS4wOCIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTM0OS4zMiwxOTIuNWwuMjMuMjksOC41OCwxMS4wNmMxLjA5LDEuNDEsMi43NCwyLjIyLDQuNTIsMi4yMmg1LjM1bC0xMi4zLTE1LjY0LS4xOC0uMjMuMTgtLjIzLDEwLjExLTEyLjk5aC02Ljk5bC05LjI3LDEyLjUzLS4yMy4zdi0uNTJzMC0xMi4zMSwwLTEyLjMxaC02LjcydjI5LjA4aDYuNzJ2LTEzLjU1WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTMzMy44NCwyMDYuMDVjLTEuOTksMC0zLjg3LTEuMDYtNC45LTIuNzZsLTUuMjMtOC42M2gtMy4zMXYxMS4zOWgtNi43MXYtMjkuMDdoMTEuOTdjMy4wOCwwLDUuNDguOCw3LjE2LDIuMzksMS42NywxLjU4LDIuNTIsMy43NCwyLjUyLDYuNDMsMCwxLjM3LS4zNiwyLjc1LTEuMDgsNC4xMS0uNzEsMS4zNC0xLjk2LDIuNDMtMy43MywzLjI2bC0uMzkuMTgsOC4xNiwxMi43MWgtNC40NlpNMzIwLjQxLDE5MC4yOWgzLjkyYzEuNDEsMCwyLjQ4LS4zOSwzLjE5LTEuMTUuNy0uNzUsMS4wNi0xLjczLDEuMDYtMi45MXMtLjM1LTIuMi0xLjAzLTIuOTVjLS42OS0uNzctMS43OC0xLjE1LTMuMjItMS4xNWgtMy45MnY4LjE3WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTM4My45NCwyMDQuODJ2LTUuNTdjMi4xNC45OCw0Ljg5LDEuOTcsNy43NCwxLjk3LDMuMjgsMCw0Ljk0LTEuMTIsNC45NC0zLjI4LDAtMi41My0yLjIzLTIuODEtNi43LTQuNzMtMy4wNC0xLjM2LTUuOTQtMy40Ny01Ljk0LTguMzQsMC01LjY3LDQuMzItOC4zNCwxMC4zMS04LjM0LDMuMTgsMCw1Ljg5Ljc1LDcuNDEsMS4zMXY1LjQzYy0xLjUyLS43LTQuMjMtMS41NS02Ljk0LTEuNTUtMi45NSwwLTQuMzIsMS4wOC00LjMyLDIuOTUsMCwxLjk3LDEuNjYsMi41OCw0LjY2LDMuNywzLjg1LDEuOTIsOC4zMSwyLjc2LDguMzEsOS4zMiwwLDUuNjctNC41MSw4Ljc2LTEwLjU1LDguNzYtMy43MSwwLTYuNjUtLjY2LTguOTMtMS42NFoiLz48cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0yOTguOTgsMjE0LjkzaC03LjcybC0xMC45NywyOS4wOGg0Ljg0YzEuMjMsMCwyLjMxLS43OCwyLjctMS45NWwxLjEzLTMuNDFoMTEuNzlsMS43Myw1LjM2aDcuMjhsLTEwLjc4LTI5LjA4Wk0yOTAuNjgsMjMzLjQxbDIuNjQtNy4zNWMuNTktMS42NSwxLjE3LTMuNCwxLjU2LTQuNjhoLjFjLjM0LDEuMzMuOTMsMi45OSwxLjUxLDQuNjhsMi41NCw3LjM1aC04LjM2WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTMzNC4yMiwyNDRjLTEuOTksMC0zLjg3LTEuMDYtNC45LTIuNzZsLTUuMjMtOC42M2gtMy4zMXYxMS4zOWgtNi43MXYtMjkuMDdoMTEuOTdjMy4wOCwwLDUuNDguOCw3LjE2LDIuMzksMS42NywxLjU4LDIuNTIsMy43NCwyLjUyLDYuNDMsMCwxLjM3LS4zNiwyLjc1LTEuMDgsNC4xMS0uNzEsMS4zNC0xLjk2LDIuNDMtMy43MywzLjI2bC0uMzkuMTgsOC4xNiwxMi43MWgtNC40NlpNMzIwLjc4LDIyOC4yNGgzLjkyYzEuNDEsMCwyLjQ4LS4zOSwzLjE5LTEuMTUuNy0uNzUsMS4wNi0xLjczLDEuMDYtMi45MXMtLjM1LTIuMi0xLjAzLTIuOTVjLS42OS0uNzctMS43OC0xLjE1LTMuMjItMS4xNWgtMy45MnY4LjE3WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTI1NS4xNCwyMjkuODNjMC04LjM1LDQuNDgtMTUuMjYsMTQtMTUuMjYsMy41LDAsNS42OS43LDcuMTksMS4zMXY1LjU1Yy0xLjQtLjg0LTMuNTktMS40OS02LjQ5LTEuNDktNS4xMywwLTcuOTQsMy40MS03Ljk0LDkuOSwwLDUuOTMsMy4wOCw5LjIsOC4xMiw5LjIsMi44OSwwLDQuOTUtLjcsNi42My0xLjczdjUuNjljLTEuOTEuODQtMy44NywxLjQtNy40MiwxLjQtOS4zNCwwLTE0LjEtNi4yNS0xNC4xLTE0LjU2WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTM0MC41NSwyMjkuODNjMC04LjEyLDQuNDMtMTUuMjYsMTQuOTQtMTUuMjYsMy43OCwwLDYuMjUuNjUsOC4xNywxLjQ5djUuNDZjLTIuMjktMS4wNy00LjcxLTEuNjgtNy44NC0xLjY4LTUuNjUsMC04LjUsMy41NS04LjUsOS45OXMyLjk5LDkuNDMsOC4zMSw5LjQzYzEuNDUsMCwyLjM4LS4xOSwzLjM2LS41MXYtNS43NGgtMi4wOGMtMS4zNSwwLTIuNDUtMS4xLTIuNDUtMi40NXYtMi4zNmgxMC42OXYxNC40N2MtMi41Mi44OS01LjUxLDEuNzMtOS44NSwxLjczLTkuNTcsMC0xNC43NS01LjkzLTE0Ljc1LTE0LjU2WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTM2OS43OCwyMjkuNWMwLTguMDMsNC42Mi0xNC45NCwxMy43Ny0xNC45NHMxMy43Nyw2LjYzLDEzLjc3LDE0Ljg5LTQuNjcsMTQuOTQtMTMuNzcsMTQuOTQtMTMuNzctNi42My0xMy43Ny0xNC44OVpNMzkwLjYsMjI5LjQ1YzAtNi4xNi0yLjQ3LTkuNjItNy4wNS05LjYycy03LDMuNS03LDkuNjYsMi40Myw5LjYyLDcsOS42Miw3LjA1LTMuNSw3LjA1LTkuNjZaIi8+PC9zdmc+" alt="Turkish Cargo" style="height:60px;background:#1a1a2e;padding:12px 24px;border-radius:8px;">
+        </div>
+
+        <!-- Route Inputs -->
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end;">
+          <div style="flex:1;min-width:120px;">
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;">Origin</label>
+            <input type="text" id="quoteOrigin" value="YYZ" maxlength="6" oninput="this.value=this.value.toUpperCase();quoteUpdateRoute()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;font-weight:600;">
+          </div>
+          <div style="flex:1;min-width:120px;">
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;">Destination</label>
+            <input type="text" id="quoteDestination" placeholder="e.g. IST" maxlength="6" oninput="this.value=this.value.toUpperCase();quoteUpdateRoute();quoteAutoFillRates()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;font-weight:600;">
+          </div>
+          <div style="flex:1;min-width:120px;">
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;">Via Point</label>
+            <input type="text" id="quoteVia" placeholder="e.g. IST" maxlength="6" oninput="this.value=this.value.toUpperCase();quoteUpdateRoute()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;font-weight:600;">
+          </div>
+          <div style="flex:1;min-width:120px;">
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;">Weight (kg)</label>
+            <input type="number" id="quoteWeight" placeholder="e.g. 300" min="0" oninput="quoteAutoFillRates()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;">
+          </div>
+          <div style="flex:2;min-width:200px;">
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;">Route</label>
+            <div id="quoteRouteDisplay" style="padding:8px 14px;background:var(--accent);color:#fff;border-radius:6px;font-size:15px;font-weight:700;letter-spacing:1px;min-height:36px;display:flex;align-items:center;">YYZ</div>
+          </div>
+        </div>
+
+        <!-- Quote Table -->
+        <div style="overflow-x:auto;margin-bottom:16px;">
+          <table id="quoteTable" style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="background:var(--accent);color:#fff;">
+                <th style="padding:10px 12px;text-align:left;white-space:nowrap;border:1px solid rgba(255,255,255,0.15);">Product</th>
+                <th style="padding:10px 12px;text-align:left;white-space:nowrap;border:1px solid rgba(255,255,255,0.15);">Weight Break</th>
+                <th style="padding:10px 12px;text-align:left;white-space:nowrap;border:1px solid rgba(255,255,255,0.15);">Route</th>
+                <th style="padding:10px 12px;text-align:left;white-space:nowrap;border:1px solid rgba(255,255,255,0.15);">Note</th>
+                <th style="padding:10px 12px;text-align:left;white-space:nowrap;border:1px solid rgba(255,255,255,0.15);">Offered Rate (CAD/kg)</th>
+              </tr>
+            </thead>
+            <tbody id="quoteBody">
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Copy Button -->
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button onclick="quoteCopyForEmail()" style="padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;">
+            📋 Copy for Email
+          </button>
+          <span id="quoteCopyMsg" style="font-size:12px;color:var(--accent);font-weight:600;opacity:0;transition:opacity .4s;"></span>
+        </div>
+      </div>
+    </div>
+
 
   </div>
 </div>
@@ -950,7 +1013,6 @@ db.ref('mcr').on('value', (snap) => {
 window.fbSetUSDCAD = (val) => {
   db.ref('usdcad').set(val);
   db.ref('ts_usdcad').set(new Date().toISOString());
-  sendUpdateNotification('USD/CAD Exchange Rate', currentUser);
 };
 window.fbSetMCR = (data) => {
   db.ref('mcr').set(data);
@@ -1225,6 +1287,7 @@ function switchTab(idx) {
   if(idx===7) renderSchedule();
   if(idx===8) renderPromo();
   if(idx===9) renderContacts();
+  if(idx===10) quoteAutoFillRates();
 }
 
 // ── Admin ─────────────────────────────────────────────────────────────────
@@ -2331,6 +2394,184 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   autoFetchRate();
   setInterval(autoFetchRate, 60 * 60 * 1000);
+});
+
+// ── Quote Tab ─────────────────────────────────────────────────────────────
+const QUOTE_PRODUCTS = [
+  { product: 'TK Smart',   sheet: 'TKSMART'    },
+  { product: 'TK Premium', sheet: 'TKPREMIUM'  },
+  { product: 'TK Urgent',  sheet: 'TKURGENT'   },
+  { product: 'PER',        sheet: 'PER'         },
+  { product: 'DGR',        sheet: 'DGR'         },
+];
+
+function quoteUpdateRoute() {
+  const o = (document.getElementById('quoteOrigin').value||'').trim().toUpperCase();
+  const d = (document.getElementById('quoteDestination').value||'').trim().toUpperCase();
+  const v = (document.getElementById('quoteVia').value||'').trim().toUpperCase();
+  let route = o || '';
+  if (v) route += ' – ' + v;
+  if (d && d !== v) route += ' – ' + d;
+  else if (d) route += (v ? '' : ' – ' + d);
+  // Rebuild route: origin – via – dest
+  let parts = [o];
+  if (v) parts.push(v);
+  if (d) parts.push(d);
+  route = parts.filter(Boolean).join(' – ');
+  document.getElementById('quoteRouteDisplay').textContent = route || '—';
+  // Update route column in each row
+  document.querySelectorAll('.quote-route-cell').forEach(td => { td.textContent = route || '—'; });
+}
+
+function quoteGetRateForProduct(sheetKey, dest, kg) {
+  if (!dest) return '';
+  // 1. Check MCR first
+  const fx = getUSDCAD();
+  const mcrEntries = MCR.filter(r => r.dest === dest);
+  // Find MCR entry matching product type roughly
+  // MCR types are like "TK Smart", "PER", etc. We'll match by sheet prefix
+  const productMCRMap = {
+    'TKSMART': ['TK Smart', 'Smart'],
+    'TKPREMIUM': ['TK Premium', 'Premium'],
+    'TKURGENT': ['TK Urgent', 'Urgent'],
+    'PER': ['PER'],
+    'DGR': ['DGR'],
+  };
+  const keywords = productMCRMap[sheetKey] || [];
+  const mcrMatch = mcrEntries.find(r => keywords.some(k => r.type && r.type.toUpperCase().includes(k.toUpperCase())));
+  if (mcrMatch) {
+    return (mcrMatch.rate * fx).toFixed(2);
+  }
+  // 2. Fallback: rate sheet
+  const kgNum = parseFloat(kg);
+  if (!isNaN(kgNum) && kgNum > 0) {
+    const col = getCol(kgNum);
+    const row = (DATA[sheetKey] || {})[dest];
+    if (row) {
+      const val = parseVal(row[col]);
+      if (!isNaN(val)) {
+        return (val * fx).toFixed(2);
+      }
+    }
+  }
+  return '';
+}
+
+function quoteAutoFillRates() {
+  const dest = (document.getElementById('quoteDestination').value||'').trim().toUpperCase();
+  const kg = document.getElementById('quoteWeight').value;
+  const route = document.getElementById('quoteRouteDisplay').textContent;
+  const tbody = document.getElementById('quoteBody');
+
+  // Build rows if not built yet or dest changed
+  tbody.innerHTML = '';
+  QUOTE_PRODUCTS.forEach((p, i) => {
+    const rate = quoteGetRateForProduct(p.sheet, dest, kg);
+    const tr = document.createElement('tr');
+    tr.style.cssText = 'border-bottom:1px solid var(--border);';
+    tr.innerHTML = `
+      <td style="padding:9px 12px;border:1px solid var(--border);font-weight:600;">${p.product}</td>
+      <td style="padding:9px 12px;border:1px solid var(--border);">
+        <input type="text" value="${kg ? '+' + kg + ' kg' : ''}" placeholder="e.g. +300 kg"
+          style="width:100%;padding:4px 6px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:12px;">
+      </td>
+      <td class="quote-route-cell" style="padding:9px 12px;border:1px solid var(--border);font-size:12px;">${route||'—'}</td>
+      <td style="padding:9px 12px;border:1px solid var(--border);">
+        <input type="text" placeholder="e.g. All-in rate"
+          style="width:100%;padding:4px 6px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:12px;">
+      </td>
+      <td style="padding:9px 12px;border:1px solid var(--border);">
+        <input type="text" class="quote-rate-input" value="${rate}"
+          placeholder="CAD/kg"
+          style="width:100%;padding:4px 6px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:13px;font-weight:700;text-align:right;">
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function quoteCopyForEmail() {
+  const origin = (document.getElementById('quoteOrigin').value||'').trim().toUpperCase();
+  const dest   = (document.getElementById('quoteDestination').value||'').trim().toUpperCase();
+  const via    = (document.getElementById('quoteVia').value||'').trim().toUpperCase();
+  const route  = document.getElementById('quoteRouteDisplay').textContent;
+
+  let parts = [origin]; if (via) parts.push(via); if (dest) parts.push(dest);
+
+  const rows = document.querySelectorAll('#quoteBody tr');
+  let rowsHtml = '';
+  rows.forEach(tr => {
+    const cells = tr.querySelectorAll('td');
+    if (!cells.length) return;
+    const product   = cells[0].textContent.trim();
+    const weightVal = cells[1].querySelector('input') ? cells[1].querySelector('input').value : '';
+    const routeVal  = cells[2].textContent.trim();
+    const noteVal   = cells[3].querySelector('input') ? cells[3].querySelector('input').value : '';
+    const rateVal   = cells[4].querySelector('input') ? cells[4].querySelector('input').value : '';
+    rowsHtml += `<tr>
+      <td style="padding:8px 14px;border:1px solid #d0d0d0;font-weight:600;white-space:nowrap;">${product}</td>
+      <td style="padding:8px 14px;border:1px solid #d0d0d0;white-space:nowrap;">${weightVal}</td>
+      <td style="padding:8px 14px;border:1px solid #d0d0d0;white-space:nowrap;">${routeVal}</td>
+      <td style="padding:8px 14px;border:1px solid #d0d0d0;">${noteVal}</td>
+      <td style="padding:8px 14px;border:1px solid #d0d0d0;text-align:right;font-weight:700;">${rateVal ? rateVal + ' CAD/kg' : ''}</td>
+    </tr>`;
+  });
+
+  const logoB64 = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIGlkPSJrYXRtYW5fMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNTk1LjI4IDQyMC45NSI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOm5vbmU7fS5jbHMtMntmaWxsOiNjZTE4MWU7fS5jbHMtM3tmaWxsOiNmZmZmZmY7fS5jbHMtNHtmaWxsOiNmZmY7fTwvc3R5bGU+PC9kZWZzPjxyZWN0IGNsYXNzPSJjbHMtMSIgeD0iLjg5IiB5PSIwIiB3aWR0aD0iNTk0LjM4IiBoZWlnaHQ9IjQyMC45NCIvPjxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTIwMi41MywxNzMuNTVjMTguNjcsMS45NCwzMy4yNCwxNy43MiwzMy4yNCwzNi45MSwwLDIwLjUtMTYuNjEsMzcuMTMtMzcuMTEsMzcuMTQtMjAuNSwwLTM3LjEzLTE2LjYxLTM3LjE0LTM3LjExLDAtMjAuNSwxNi42MS0zNy4xMywzNy4xMS0zNy4xNCwxLjMxLDAsMi42MS4wNywzLjkuMlpNMjA0LjQ0LDI0NWMxOS4wNy0zLjIsMzEuOTQtMjEuMjYsMjguNzMtNDAuMzMtMi42Ny0xNS44Ny0xNS42MS0yNy40NC0zMC44Ni0yOS4wMy0zLjA4LS4zMi02LjI2LS4yNC05LjQ3LjMtMy44LjY0LTcuMzUsMS44Ny0xMC41OCwzLjU5LDE2LjgxLDUuNywyNS44NSwxNC4zNywyNi40OCwyMy4yNS4zMSw1LjQ4LTIuMjQsOS40NS01LjU5LDEyLjY4bDIzLjc3LTEuNjZjLjY3LS4wNS44OC43NC4wNy45N2wtNTYuNywxNi4yNmM1Ljc3LDcuOTUsMTQuNzQsMTMuMjQsMjQuNjksMTQuMjgsMy4wOC4zMiw2LjI2LjI0LDkuNDctLjNaTTE4OC44NCwyMTEuMjljMy4xMS0xMS42OC0uNDQtMjMuOTMtOC45Mi0zMC40Mi0xMS41Niw3LjMxLTE4LjIyLDIxLjA3LTE1LjgxLDM1LjQuNzksNC43NCwyLjUxLDkuMDksNC45MywxMi45MSw5LjA0LTIuNTIsMTYuOTgtNy4yOCwxOS44MS0xNy45WiIvPjxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTIzMy4xNywyMDQuNjdjMy4yMSwxOS4wNy05LjY2LDM3LjEzLTI4LjczLDQwLjMzLTMuMjEuNTQtNi4zOS42Mi05LjQ3LjMtOS45NS0xLjA0LTE4LjkyLTYuMzMtMjQuNjktMTQuMjhsNTYuNy0xNi4yNmMuODEtLjIzLjYtMS4wMi0uMDctLjk3bC0yMy43NywxLjY2YzMuMzUtMy4yMyw1LjktNy4yLDUuNTktMTIuNjgtLjYzLTguODgtOS42Ni0xNy41NS0yNi40OC0yMy4yNSwzLjIzLTEuNzEsNi43OC0yLjk1LDEwLjU4LTMuNTksMy4yMS0uNTQsNi4zOS0uNjIsOS40Ny0uMywxNS4yNiwxLjYsMjguMiwxMy4xNiwzMC44NiwyOS4wM1pNMTY0LjExLDIxNi4yOGMuNzksNC43NCwyLjUxLDkuMDksNC45MywxMi45MSw5LjA0LTIuNTIsMTYuOTgtNy4yOCwxOS44MS0xNy45LDMuMTEtMTEuNjgtLjQ0LTIzLjkzLTguOTItMzAuNDItMTEuNTYsNy4zMS0xOC4yMiwyMS4wNy0xNS44MSwzNS40WiIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtMyIgcG9pbnRzPSI0MjcuODggMjA2LjA2IDQyNy44OCAxOTMuODUgNDE1LjY0IDE5My44NSA0MTUuNjQgMjA2LjA2IDQwOC45MyAyMDYuMDYgNDA4LjkzIDE3Ni45OCA0MTUuNjQgMTc2Ljk4IDQxNS42NCAxODguNTcgNDI3Ljg4IDE4OC41NyA0MjcuODggMTc2Ljk4IDQzNC42NSAxNzYuOTggNDM0LjY1IDIwNi4wNiA0MjcuODggMjA2LjA2Ii8+PHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMjgzLjEsMTc2Ljk4djE4LjJjMCwyLjAxLjMsMy43NS44OCw1LjE3LjU4LDEuNCwxLjQyLDIuNTcsMi41LDMuNDcsMS4wOS45LDIuNDEsMS41NywzLjkxLDEuOTksMS41Mi40MiwzLjI1LjY0LDUuMTIuNjRzMy41OC0uMjEsNS4wNy0uNjNjMS40Ny0uNDEsMi43Mi0xLjA4LDMuNzMtMS45OCwxLS45LDEuNzktMi4wNywyLjM0LTMuNDcuNTUtMS40MS44My0zLjE1LjgzLTUuMTh2LTE4LjJoLTYuMjl2MTguMDFjMCwxLjgzLS40NiwzLjMyLTEuMzUsNC40LS45MiwxLjExLTIuMzgsMS42Ny00LjM0LDEuNjdzLTMuMzctLjU2LTQuMzEtMS42N2MtLjkyLTEuMDgtMS4zOC0yLjU3LTEuMzgtNC40MXYtMTguMDFoLTYuNzJaIi8+PHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMjYzLjcyLDIwNi4wNnYtMjMuNjVoLTcuOXYtNS40M2gyMi41N3YyLjZjMCwxLjU2LTEuMjcsMi44My0yLjgyLDIuODNoLTUuMTJ2MjMuNjVoLTYuNzJaIi8+PHJlY3QgY2xhc3M9ImNscy0zIiB4PSIzNzEuNyIgeT0iMTc2Ljk4IiB3aWR0aD0iNi43MiIgaGVpZ2h0PSIyOS4wOCIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTM0OS4zMiwxOTIuNWwuMjMuMjksOC41OCwxMS4wNmMxLjA5LDEuNDEsMi43NCwyLjIyLDQuNTIsMi4yMmg1LjM1bC0xMi4zLTE1LjY0LS4xOC0uMjMuMTgtLjIzLDEwLjExLTEyLjk5aC02Ljk5bC05LjI3LDEyLjUzLS4yMy4zdi0uNTJzMC0xMi4zMSwwLTEyLjMxaC02LjcydjI5LjA4aDYuNzJ2LTEzLjU1WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTMzMy44NCwyMDYuMDVjLTEuOTksMC0zLjg3LTEuMDYtNC45LTIuNzZsLTUuMjMtOC42M2gtMy4zMXYxMS4zOWgtNi43MXYtMjkuMDdoMTEuOTdjMy4wOCwwLDUuNDguOCw3LjE2LDIuMzksMS42NywxLjU4LDIuNTIsMy43NCwyLjUyLDYuNDMsMCwxLjM3LS4zNiwyLjc1LTEuMDgsNC4xMS0uNzEsMS4zNC0xLjk2LDIuNDMtMy43MywzLjI2bC0uMzkuMTgsOC4xNiwxMi43MWgtNC40NlpNMzIwLjQxLDE5MC4yOWgzLjkyYzEuNDEsMCwyLjQ4LS4zOSwzLjE5LTEuMTUuNy0uNzUsMS4wNi0xLjczLDEuMDYtMi45MXMtLjM1LTIuMi0xLjAzLTIuOTVjLS42OS0uNzctMS43OC0xLjE1LTMuMjItMS4xNWgtMy45MnY4LjE3WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTM4My45NCwyMDQuODJ2LTUuNTdjMi4xNC45OCw0Ljg5LDEuOTcsNy43NCwxLjk3LDMuMjgsMCw0Ljk0LTEuMTIsNC45NC0zLjI4LDAtMi41My0yLjIzLTIuODEtNi43LTQuNzMtMy4wNC0xLjM2LTUuOTQtMy40Ny01Ljk0LTguMzQsMC01LjY3LDQuMzItOC4zNCwxMC4zMS04LjM0LDMuMTgsMCw1Ljg5Ljc1LDcuNDEsMS4zMXY1LjQzYy0xLjUyLS43LTQuMjMtMS41NS02Ljk0LTEuNTUtMi45NSwwLTQuMzIsMS4wOC00LjMyLDIuOTUsMCwxLjk3LDEuNjYsMi41OCw0LjY2LDMuNywzLjg1LDEuOTIsOC4zMSwyLjc2LDguMzEsOS4zMiwwLDUuNjctNC41MSw4Ljc2LTEwLjU1LDguNzYtMy43MSwwLTYuNjUtLjY2LTguOTMtMS42NFoiLz48cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0yOTguOTgsMjE0LjkzaC03LjcybC0xMC45NywyOS4wOGg0Ljg0YzEuMjMsMCwyLjMxLS43OCwyLjctMS45NWwxLjEzLTMuNDFoMTEuNzlsMS43Myw1LjM2aDcuMjhsLTEwLjc4LTI5LjA4Wk0yOTAuNjgsMjMzLjQxbDIuNjQtNy4zNWMuNTktMS42NSwxLjE3LTMuNCwxLjU2LTQuNjhoLjFjLjM0LDEuMzMuOTMsMi45OSwxLjUxLDQuNjhsMi41NCw3LjM1aC04LjM2WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTMzNC4yMiwyNDRjLTEuOTksMC0zLjg3LTEuMDYtNC45LTIuNzZsLTUuMjMtOC42M2gtMy4zMXYxMS4zOWgtNi43MXYtMjkuMDdoMTEuOTdjMy4wOCwwLDUuNDguOCw3LjE2LDIuMzksMS42NywxLjU4LDIuNTIsMy43NCwyLjUyLDYuNDMsMCwxLjM3LS4zNiwyLjc1LTEuMDgsNC4xMS0uNzEsMS4zNC0xLjk2LDIuNDMtMy43MywzLjI2bC0uMzkuMTgsOC4xNiwxMi43MWgtNC40NlpNMzIwLjc4LDIyOC4yNGgzLjkyYzEuNDEsMCwyLjQ4LS4zOSwzLjE5LTEuMTUuNy0uNzUsMS4wNi0xLjczLDEuMDYtMi45MXMtLjM1LTIuMi0xLjAzLTIuOTVjLS42OS0uNzctMS43OC0xLjE1LTMuMjItMS4xNWgtMy45MnY4LjE3WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTI1NS4xNCwyMjkuODNjMC04LjM1LDQuNDgtMTUuMjYsMTQtMTUuMjYsMy41LDAsNS42OS43LDcuMTksMS4zMXY1LjU1Yy0xLjQtLjg0LTMuNTktMS40OS02LjQ5LTEuNDktNS4xMywwLTcuOTQsMy40MS03Ljk0LDkuOSwwLDUuOTMsMy4wOCw5LjIsOC4xMiw5LjIsMi44OSwwLDQuOTUtLjcsNi42My0xLjczdjUuNjljLTEuOTEuODQtMy44NywxLjQtNy40MiwxLjQtOS4zNCwwLTE0LjEtNi4yNS0xNC4xLTE0LjU2WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTM0MC41NSwyMjkuODNjMC04LjEyLDQuNDMtMTUuMjYsMTQuOTQtMTUuMjYsMy43OCwwLDYuMjUuNjUsOC4xNywxLjQ5djUuNDZjLTIuMjktMS4wNy00LjcxLTEuNjgtNy44NC0xLjY4LTUuNjUsMC04LjUsMy41NS04LjUsOS45OXMyLjk5LDkuNDMsOC4zMSw5LjQzYzEuNDUsMCwyLjM4LS4xOSwzLjM2LS41MXYtNS43NGgtMi4wOGMtMS4zNSwwLTIuNDUtMS4xLTIuNDUtMi40NXYtMi4zNmgxMC42OXYxNC40N2MtMi41Mi44OS01LjUxLDEuNzMtOS44NSwxLjczLTkuNTcsMC0xNC43NS01LjkzLTE0Ljc1LTE0LjU2WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTM2OS43OCwyMjkuNWMwLTguMDMsNC42Mi0xNC45NCwxMy43Ny0xNC45NHMxMy43Nyw2LjYzLDEzLjc3LDE0Ljg5LTQuNjcsMTQuOTQtMTMuNzcsMTQuOTQtMTMuNzctNi42My0xMy43Ny0xNC44OVpNMzkwLjYsMjI5LjQ1YzAtNi4xNi0yLjQ3LTkuNjItNy4wNS05LjYycy03LDMuNS03LDkuNjYsMi40Myw5LjYyLDcsOS42Miw3LjA1LTMuNSw3LjA1LTkuNjZaIi8+PC9zdmc+';
+
+  const html = `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;padding:20px;">
+<div style="text-align:center;margin-bottom:20px;">
+  <img src="${logoB64}" alt="Turkish Cargo" style="height:50px;background:#1a1a2e;padding:10px 20px;border-radius:6px;">
+</div>
+<p style="font-size:14px;color:#333;margin-bottom:12px;">Please find below our offered rates for the requested shipment:</p>
+<table style="width:100%;border-collapse:collapse;font-size:13px;font-family:Arial,sans-serif;">
+  <thead>
+    <tr style="background:#c0392b;color:#ffffff;">
+      <th style="padding:10px 14px;border:1px solid #aaa;text-align:left;">Product</th>
+      <th style="padding:10px 14px;border:1px solid #aaa;text-align:left;">Weight Break</th>
+      <th style="padding:10px 14px;border:1px solid #aaa;text-align:left;">Route</th>
+      <th style="padding:10px 14px;border:1px solid #aaa;text-align:left;">Note</th>
+      <th style="padding:10px 14px;border:1px solid #aaa;text-align:right;">Offered Rate (CAD/kg)</th>
+    </tr>
+  </thead>
+  <tbody>${rowsHtml}</tbody>
+</table>
+<p style="font-size:11px;color:#888;margin-top:14px;">Rates are subject to availability and confirmation. All rates in CAD per kg.</p>
+</body></html>`;
+
+  try {
+    const blob = new Blob([html], { type: 'text/html' });
+    const item = new ClipboardItem({ 'text/html': blob });
+    navigator.clipboard.write([item]).then(() => {
+      const msg = document.getElementById('quoteCopyMsg');
+      msg.textContent = '✓ Copied! Paste directly into your email.';
+      msg.style.opacity = '1';
+      setTimeout(() => { msg.style.opacity = '0'; }, 3000);
+    });
+  } catch(e) {
+    // Fallback: plain text
+    let txt = `Product\tWeight Break\tRoute\tNote\tOffered Rate\n`;
+    rows.forEach(tr => {
+      const cells = tr.querySelectorAll('td');
+      if (!cells.length) return;
+      txt += [
+        cells[0].textContent.trim(),
+        cells[1].querySelector('input')?.value||'',
+        cells[2].textContent.trim(),
+        cells[3].querySelector('input')?.value||'',
+        cells[4].querySelector('input')?.value||''
+      ].join('\t') + '\n';
+    });
+    navigator.clipboard.writeText(txt);
+    const msg = document.getElementById('quoteCopyMsg');
+    msg.textContent = '✓ Copied as text.';
+    msg.style.opacity = '1';
+    setTimeout(() => { msg.style.opacity = '0'; }, 2500);
+  }
+}
+
+// Init Quote tab on first open
+document.addEventListener('DOMContentLoaded', () => {
+  quoteAutoFillRates();
 });
 </script>
 </body>
