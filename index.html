@@ -812,7 +812,7 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
             </div>
           </div>
           <div style="display:grid;grid-template-columns:150px 1fr;border-bottom:1px solid var(--border);">
-            <div style="padding:12px 14px;background:rgba(128,128,128,.08);font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;border-right:1px solid var(--border);">STACKABLE</div>
+            <div style="padding:12px 14px;background:rgba(128,128,128,.08);font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;border-right:1px solid var(--border);">STACKABILITY</div>
             <div style="padding:7px 10px;display:flex;gap:8px;align-items:center;">
               <select id="quoteStackable" style="min-width:200px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:13px;">
                 <option value="yes" selected>Yes</option><option value="no">No</option>
@@ -2504,7 +2504,7 @@ function quoteCopyForEmail(){
     ['PRODUCT',quoteProductName()],
     ['WEIGHT BREAK',quoteWeightText()],
     ['ROUTE',document.getElementById('quoteRouteDisplay').textContent],
-    ['STACKABLE',quoteVal('quoteStackable')==='no'?'Non-stackable':'Stackable'],
+    ['STACKABILITY',quoteVal('quoteStackable')==='no'?'Non-stackable':'Stackable'],
     ['REMARKS',quoteVal('quoteNote')],
     ['OFFERED RATE',rate?rate+' CAD/kg':'']
   ];
