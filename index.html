@@ -776,6 +776,7 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
     </div>
 
     <div class="tab-panel" id="tab10">
+<style>#tab10 select{color-scheme:light;}#tab10 select option{background:#ffffff;color:#111111;}</style>
       <div style="max-width:760px;margin:0 auto;padding:16px 12px;">
         <div style="background:#fff;border-radius:10px 10px 0 0;padding:18px 20px;text-align:center;border-bottom:3px solid #c0392b;">
           <img src="data:image/png;base64,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" alt="Turkish Cargo" style="height:120px;">
@@ -811,6 +812,15 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
             </div>
           </div>
           <div style="display:grid;grid-template-columns:150px 1fr;border-bottom:1px solid var(--border);">
+            <div style="padding:12px 14px;background:rgba(128,128,128,.08);font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;border-right:1px solid var(--border);">STACKABLE</div>
+            <div style="padding:7px 10px;display:flex;gap:8px;align-items:center;">
+              <select id="quoteStackable" style="min-width:200px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:13px;">
+                <option value="yes" selected>Yes</option><option value="no">No</option>
+              </select>
+              <span style="font-size:11px;color:var(--muted);">Yes = Stackable &middot; No = Non-stackable</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:150px 1fr;border-bottom:1px solid var(--border);">
             <div style="padding:12px 14px;background:rgba(128,128,128,.08);font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;border-right:1px solid var(--border);">NOTE</div>
             <div style="padding:7px 10px;"><input type="text" id="quoteNote" placeholder="örn. All-in, subject to space availability" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;"></div>
           </div>
@@ -821,7 +831,16 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
               <span style="font-size:12px;color:var(--muted);">CAD / kg</span>
               <span id="quoteMCRBadge" style="display:none;padding:3px 8px;background:#27ae60;color:#fff;border-radius:4px;font-size:11px;font-weight:700;">MCR</span>
               <span id="quoteRateHint" style="font-size:11px;color:var(--muted);"></span>
+              <div id="quoteMCRInfo" style="width:100%;font-size:11px;line-height:1.5;color:var(--muted);"></div>
             </div>
+          </div>
+          <div style="padding:10px 14px;border-top:1px solid var(--border);font-size:11px;line-height:1.5;color:var(--muted);">
+            <div>Non-EAW/EAP Fee: 30.00 CAD per AWB will be applicable if E-AWB was not successfully received.</div>
+            <div style="margin-top:6px;">AWB processing fee:</div>
+            <ul style="margin:3px 0 0 18px;padding:0;">
+              <li>MAWB/HAWB data electronically transmitted correctly (FWB and FHL) and in time to the Turkish Cargo system; a fee of 5.00 CAD as a transaction fee (CG fee) will be charged per MAWB and HAWB.</li>
+              <li>MAWB/HAWB data NOT electronically transmitted, late, or transmitted with inaccurate/insufficient information there will be 25 CAD (CC fee) per HAWB.</li>
+            </ul>
           </div>
         </div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
@@ -2396,6 +2415,10 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 // ── Quote Tab ─────────────────────────────────────────────────────────────
+const QUOTE_DISCLAIMER_ROW = '<tr><td colspan="2" style="border:1px solid #BFBFBF;padding:8px 12px;font-family:Arial,sans-serif;font-size:11px;color:#555555;line-height:1.4;">'
+  +'Non-EAW/EAP Fee: 30.00 CAD per AWB will be applicable if E-AWB was not successfully received.<br><br>AWB processing fee:'
+  +'<ul style="margin:4px 0 0 18px;padding:0;"><li>MAWB/HAWB data electronically transmitted correctly (FWB and FHL) and in time to the Turkish Cargo system; a fee of 5.00 CAD as a transaction fee (CG fee) will be charged per MAWB and HAWB.</li>'
+  +'<li>MAWB/HAWB data NOT electronically transmitted, late, or transmitted with inaccurate/insufficient information there will be 25 CAD (CC fee) per HAWB.</li></ul></td></tr>';
 const QUOTE_SHEETS = {'TK Smart':'TKSMART','TK Premium':'TKPREMIUM','TK Urgent':'TKURGENT','PER':'PER','DGR':'DGR'};
 const QUOTE_LOGO_URL = 'https://cihanomur1985.github.io/Toronto/tc-logo-banner.png';
 
@@ -2428,17 +2451,23 @@ function quoteAutoFillRates(){
   const badge=document.getElementById('quoteMCRBadge');
   const hint=document.getElementById('quoteRateHint');
   badge.style.display='none'; hint.textContent='';
+  const info=document.getElementById('quoteMCRInfo'); if(info) info.innerHTML='';
   if(!dest){ rateEl.value=''; return; }
   const fx=getUSDCAD();
-  // 1) MCR (low MCR tercih edilir)
+  // 1) MCR: Low LF ve High LF bilgi olarak gosterilir, rate Low LF'ye gore gelir
   const entries=(typeof MCR!=='undefined'?MCR:[]).filter(r=>r.dest===dest);
   if(entries.length){
     const low=entries.filter(r=>/low/i.test(r.lf||''));
+    const high=entries.filter(r=>/high/i.test(r.lf||''));
+    const lines=[];
+    const fmt=(r)=>'<b>MCR '+(r.lf||'')+(r.type&&r.type!=='All'?' ('+r.type+')':'')+':</b> '+r.rate.toFixed(2)+' USD = '+(r.rate*fx).toFixed(2)+' CAD';
+    low.concat(high).forEach(r=>lines.push(fmt(r)));
+    if(info) info.innerHTML=lines.join('<br>');
     const pool=low.length?low:entries;
-    const best=pool.reduce((a,b)=>b.rate<a.rate?b:a);
+    const best=pool.reduce((x,y)=>y.rate<x.rate?y:x);
     rateEl.value=(best.rate*fx).toFixed(2);
     badge.style.display='inline-block';
-    hint.textContent='MCR '+(best.lf||'')+' '+best.rate.toFixed(2)+' USD';
+    hint.textContent='Rate: MCR '+(best.lf||'')+(low.length?'':' (Low LF yok)');
     return;
   }
   // 2) Rate sheet
@@ -2448,7 +2477,7 @@ function quoteAutoFillRates(){
     const row=((typeof DATA!=='undefined'?DATA:{})[sheet]||{})[dest];
     if(row){
       const v=parseVal(row[col]);
-      if(!isNaN(v)){ rateEl.value=(v*fx).toFixed(2); hint.textContent='Rate sheet'; return; }
+      if(!isNaN(v)){ rateEl.value=v.toFixed(2); hint.textContent='Rate sheet (CAD)'; return; }
     }
   }
   rateEl.value='';
@@ -2463,6 +2492,7 @@ function quoteReset(){
   document.getElementById('quoteVia').value='IST';
   document.getElementById('quoteDestination').value='';
   document.getElementById('quoteNote').value='';
+  document.getElementById('quoteStackable').value='yes';
   quoteProductChange(); quoteWeightChange(); quoteUpdateRoute(); quoteAutoFillRates();
 }
 function quoteEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -2472,13 +2502,14 @@ function quoteCopyForEmail(){
     ['PRODUCT',quoteProductName()],
     ['WEIGHT BREAK',quoteWeightText()],
     ['ROUTE',document.getElementById('quoteRouteDisplay').textContent],
+    ['STACKABLE',quoteVal('quoteStackable')==='no'?'Non-stackable':'Stackable'],
     ['NOTE',quoteVal('quoteNote')],
     ['OFFERED RATE',rate?rate+' CAD/kg':'']
   ];
-  const tr=rows.map((r,i)=>'<tr><td width="150" bgcolor="#F2F2F2" style="width:150px;border:1px solid #BFBFBF;padding:7px 12px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:#555555;white-space:nowrap;">'+r[0]+'</td><td width="370" style="width:370px;border:1px solid #BFBFBF;padding:7px 12px;font-family:Arial,sans-serif;font-size:13px;'+(i===0||i===4?'font-weight:bold;':'font-weight:normal;')+'">'+quoteEsc(r[1])+'</td></tr>').join('');
+  const tr=rows.map((r,i)=>'<tr><td width="150" bgcolor="#F2F2F2" style="width:150px;border:1px solid #BFBFBF;padding:7px 12px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:#555555;white-space:nowrap;">'+r[0]+'</td><td width="370" style="width:370px;border:1px solid #BFBFBF;padding:7px 12px;font-family:Arial,sans-serif;font-size:13px;'+(i===0||i===5?'font-weight:bold;':'font-weight:normal;')+'">'+quoteEsc(r[1])+'</td></tr>').join('');
   const html='<table width="520" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:520px;">'
     +'<tr><td colspan="2" style="border:1px solid #BFBFBF;border-bottom:3px solid #C0392B;padding:0;text-align:center;" align="center"><p align="center" style="text-align:center;margin:0;padding:0;"><img src="'+QUOTE_LOGO_URL+'" alt="Turkish Cargo" width="518" height="170" style="width:518px;height:170px;"></p></td></tr>'
-    +tr+'</table>';
+    +tr+QUOTE_DISCLAIMER_ROW+'</table>';
   const msg=document.getElementById('quoteCopyMsg');
   const ok=t=>{ msg.textContent=t; msg.style.opacity='1'; setTimeout(()=>{msg.style.opacity='0';},3000); };
   const plain=rows.map(r=>r[0]+'\t'+r[1]).join('\n');
