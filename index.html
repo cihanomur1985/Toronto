@@ -821,8 +821,8 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
             </div>
           </div>
           <div style="display:grid;grid-template-columns:150px 1fr;border-bottom:1px solid var(--border);">
-            <div style="padding:12px 14px;background:rgba(128,128,128,.08);font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;border-right:1px solid var(--border);">NOTE</div>
-            <div style="padding:7px 10px;"><input type="text" id="quoteNote" placeholder="örn. All-in, subject to space availability" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;"></div>
+            <div style="padding:12px 14px;background:rgba(128,128,128,.08);font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;border-right:1px solid var(--border);">REMARKS</div>
+            <div style="padding:7px 10px;"><input type="text" id="quoteNote" placeholder="e.g. All-in, subject to space availability" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;"></div>
           </div>
           <div style="display:grid;grid-template-columns:150px 1fr;">
             <div style="padding:12px 14px;background:rgba(128,128,128,.08);font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;border-right:1px solid var(--border);">OFFERED RATE</div>
@@ -834,9 +834,9 @@ body::after{content:'';position:fixed;inset:0;background:linear-gradient(to bott
               <div id="quoteMCRInfo" style="width:100%;font-size:11px;line-height:1.5;color:var(--muted);"></div>
             </div>
           </div>
-          <div style="padding:10px 14px;border-top:1px solid var(--border);font-size:11px;line-height:1.5;color:var(--muted);">
+          <div style="padding:10px 14px;border-top:1px solid var(--border);font-size:10px;font-style:italic;line-height:1.4;color:var(--muted);">
             <div>Non-EAW/EAP Fee: 30.00 CAD per AWB will be applicable if E-AWB was not successfully received.</div>
-            <div style="margin-top:6px;">AWB processing fee:</div>
+            <div style="margin-top:3px;">AWB processing fee:</div>
             <ul style="margin:3px 0 0 18px;padding:0;">
               <li>MAWB/HAWB data electronically transmitted correctly (FWB and FHL) and in time to the Turkish Cargo system; a fee of 5.00 CAD as a transaction fee (CG fee) will be charged per MAWB and HAWB.</li>
               <li>MAWB/HAWB data NOT electronically transmitted, late, or transmitted with inaccurate/insufficient information there will be 25 CAD (CC fee) per HAWB.</li>
@@ -2415,10 +2415,10 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 // ── Quote Tab ─────────────────────────────────────────────────────────────
-const QUOTE_DISCLAIMER_ROW = '<tr><td colspan="2" style="border:1px solid #BFBFBF;padding:8px 12px;font-family:Arial,sans-serif;font-size:11px;color:#555555;line-height:1.4;">'
-  +'Non-EAW/EAP Fee: 30.00 CAD per AWB will be applicable if E-AWB was not successfully received.<br><br>AWB processing fee:'
-  +'<ul style="margin:4px 0 0 18px;padding:0;"><li>MAWB/HAWB data electronically transmitted correctly (FWB and FHL) and in time to the Turkish Cargo system; a fee of 5.00 CAD as a transaction fee (CG fee) will be charged per MAWB and HAWB.</li>'
-  +'<li>MAWB/HAWB data NOT electronically transmitted, late, or transmitted with inaccurate/insufficient information there will be 25 CAD (CC fee) per HAWB.</li></ul></td></tr>';
+const QUOTE_DISCLAIMER_ROW = '<tr><td colspan="2" style="border:1px solid #BFBFBF;padding:5px 10px;font-family:Arial,sans-serif;font-size:9px;font-style:italic;color:#666666;line-height:1.3;">'
+  +'<i>Non-EAW/EAP Fee: 30.00 CAD per AWB will be applicable if E-AWB was not successfully received.<br>AWB processing fee:</i>'
+  +'<ul style="margin:2px 0 0 14px;padding:0;font-size:9px;font-style:italic;"><li><i>MAWB/HAWB data electronically transmitted correctly (FWB and FHL) and in time to the Turkish Cargo system; a fee of 5.00 CAD as a transaction fee (CG fee) will be charged per MAWB and HAWB.</i></li>'
+  +'<li><i>MAWB/HAWB data NOT electronically transmitted, late, or transmitted with inaccurate/insufficient information there will be 25 CAD (CC fee) per HAWB.</i></li></ul></td></tr>';
 const QUOTE_SHEETS = {'TK Smart':'TKSMART','TK Premium':'TKPREMIUM','TK Urgent':'TKURGENT','PER':'PER','DGR':'DGR'};
 const QUOTE_LOGO_URL = 'https://cihanomur1985.github.io/Toronto/tc-logo-banner.png';
 
@@ -2455,7 +2455,7 @@ function quoteAutoFillRates(){
   if(!dest){ rateEl.value=''; return; }
   const fx=getUSDCAD();
   // 1) MCR: Low LF ve High LF bilgi olarak gosterilir, rate Low LF'ye gore gelir
-  const entries=(typeof MCR!=='undefined'?MCR:[]).filter(r=>r.dest===dest);
+  const entries=(typeof MCR!=='undefined'?MCR:[]).filter(r=>r&&r.dest===dest&&isFinite(parseFloat(r.rate))&&parseFloat(r.rate)>0).map(r=>Object.assign({},r,{rate:parseFloat(r.rate)}));
   if(entries.length){
     const low=entries.filter(r=>/low/i.test(r.lf||''));
     const high=entries.filter(r=>/high/i.test(r.lf||''));
@@ -2470,18 +2470,20 @@ function quoteAutoFillRates(){
     hint.textContent='Rate: MCR '+(best.lf||'')+(low.length?'':' (Low LF yok)');
     return;
   }
-  // 2) Rate sheet
-  const sheet=QUOTE_SHEETS[quoteVal('quoteProduct')];
+  // 2) Rate sheet (degerler zaten CAD)
+  const prod=quoteVal('quoteProduct');
+  if(prod==='custom'){ rateEl.value=''; hint.textContent='Custom product: rate elle yazilmali'; return; }
+  const sheet=QUOTE_SHEETS[prod];
   const col=quoteWeightCol();
-  if(sheet && col){
-    const row=((typeof DATA!=='undefined'?DATA:{})[sheet]||{})[dest];
-    if(row){
-      const v=parseVal(row[col]);
-      if(!isNaN(v)){ rateEl.value=v.toFixed(2); hint.textContent='Rate sheet (CAD)'; return; }
-    }
-  }
-  rateEl.value='';
-  hint.textContent='Rate bulunamadi, elle yaz';
+  const sheetData=(typeof DATA!=='undefined'&&sheet)?DATA[sheet]:null;
+  if(!sheetData){ rateEl.value=''; hint.textContent='Rate sheet bulunamadi ('+prod+'), elle yaz'; return; }
+  const row=sheetData[dest];
+  if(!row){ rateEl.value=''; hint.textContent='Rate sheet ('+sheet+') icinde '+dest+' yok, elle yaz'; return; }
+  if(!col){ rateEl.value=''; hint.textContent='Weight break taninmadi, elle yaz'; return; }
+  const v=parseVal(row[col]);
+  if(isNaN(v)){ rateEl.value=''; hint.textContent='Rate sheet ('+sheet+') '+dest+' icin bu weight break bos, elle yaz'; return; }
+  rateEl.value=v.toFixed(2);
+  hint.textContent='Rate sheet (CAD)';
 }
 function quoteReset(){
   document.getElementById('quoteProduct').value='TK Smart';
@@ -2503,7 +2505,7 @@ function quoteCopyForEmail(){
     ['WEIGHT BREAK',quoteWeightText()],
     ['ROUTE',document.getElementById('quoteRouteDisplay').textContent],
     ['STACKABLE',quoteVal('quoteStackable')==='no'?'Non-stackable':'Stackable'],
-    ['NOTE',quoteVal('quoteNote')],
+    ['REMARKS',quoteVal('quoteNote')],
     ['OFFERED RATE',rate?rate+' CAD/kg':'']
   ];
   const tr=rows.map((r,i)=>'<tr><td width="150" bgcolor="#F2F2F2" style="width:150px;border:1px solid #BFBFBF;padding:7px 12px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:#555555;white-space:nowrap;">'+r[0]+'</td><td width="370" style="width:370px;border:1px solid #BFBFBF;padding:7px 12px;font-family:Arial,sans-serif;font-size:13px;'+(i===0||i===5?'font-weight:bold;':'font-weight:normal;')+'">'+quoteEsc(r[1])+'</td></tr>').join('');
